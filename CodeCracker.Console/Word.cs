@@ -48,7 +48,7 @@ namespace CodeCracker.Console
 
 		public int UniqueBlanks()
 		{
-			int blanks = 0;
+			var blanks = 0;
 			for (int i = 0; i < 26; i++)
 			{
 				if (HasNumber[i] && !LetterFound[i])
@@ -61,7 +61,7 @@ namespace CodeCracker.Console
 
 		public static bool CheckWord(string testingWord)
 		{
-			int wordLength = testingWord.Length;
+			var wordLength = testingWord.Length;
         
 			if (wordLength > 10)
 			{
@@ -99,7 +99,7 @@ namespace CodeCracker.Console
 		private void UpdateIfFound()
 		{
 			var hasUnkownLetter = false;
-			string word = "";
+			var word = "";
 			for (int i = 0; i < Letters; i++)
 			{
 				if (DecodedLetters[i] == '?')
@@ -186,10 +186,10 @@ namespace CodeCracker.Console
 		public int FindPossibleSolutions(bool[] lettersAvailable)
 		{
 			var codedWord = ToSearchableWord();
-			int WordLength = codedWord.Length;
-			if (WordLength > 10) WordLength = 10;
-			var allWords = File.ReadAllText($@"C:\Users\Dominic\Desktop\cc\Words{WordLength}.txt").Split("\r\n");
-			int solutions = 0;
+			var wordLength = codedWord.Length;
+			if (wordLength > 10) wordLength = 10;
+			var allWords = File.ReadAllText($@"C:\Users\Dominic\Desktop\cc\Words{wordLength}.txt").Split("\r\n");
+			var solutions = 0;
 			PossibleSolutions.RemoveRange(0, PossibleSolutions.Count);
 
 			foreach (var DictionaryWord in allWords) //Does the CodedWord match up with the dictionary word?
@@ -197,7 +197,7 @@ namespace CodeCracker.Console
 				if (DictionaryWord.Length == 0) break;
 				var blankChar = new char[]{ ' ', ' ', ' ', ' ' };
 				var match = true;
-				for (int i = 0; i<WordLength; i++)
+				for (int i = 0; i < wordLength; i++)
 				{
 					if (char.IsLetter(codedWord.ToCharArray()[i]))
 					{
