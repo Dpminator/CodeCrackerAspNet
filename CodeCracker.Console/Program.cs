@@ -85,193 +85,12 @@ namespace CodeCracker.Console
 		static public bool SolveCodeCracker()
         {
 			var puzzle = new Puzzle(new PuzzleImporter(File.ReadAllText(@"C:\Users\Dominic\Desktop\cc\ccImport.txt")));
-
-			for (int i = 0; i < 26; i++) LettersAvailable[i] = !puzzle.IsLetterDecoded(NumToAlphabetLetter(i + 1));
-
-
-
-
-
-			//var inputLines = File.ReadAllText(@"C:\Users\Dominic\Desktop\cc\ccImport.txt").Split("\r\n");
-			//var gridHeight = int.Parse(inputLines[0].Split('x')[0]);
-			//var gridWidth = int.Parse(inputLines[0].Split('x')[1]);
-			//var givenLetters = "";
-			//var words = new List<Word>();
-			//var words.Count = 0;
-			//var grid = new int[gridHeight, gridWidth];
-
-
-
-
-
-
-
-
-
-			//Puts ints into grid
-			/*
-			for (int i = 1; i < gridHeight + 3; i++)
-			{
-				var line = inputLines[i].Trim();
-
-				if (i == gridHeight + 1)
-				{
-					givenLetters = line;
-					break;
-				}
-
-				if (i == gridHeight + 2)
-				{
-					//puzzleNote = line;
-					break;
-				}
-
-				for (int j = 0; j < gridWidth; j++)
-				{
-					var Num = line.Substring(2 * j, 2);
-					grid[i-1,j] = int.Parse(Num);
-				}
-			}
-			*/
-
-			//Prints the grid (Yuck)
-			/*
-			for (int i = 0; i < gridHeight; i++)
-			{
-				for (int j = 0; j < gridWidth; j++)
-				{
-					if (grid[i,j] == 0)
-					{
-						System.Console.Write("|  ");
-					}
-					else
-					{
-						if (grid[i,j] < 10)
-						{
-							System.Console.Write("|0" + grid[i,j]);
-						}
-						else
-						{
-							System.Console.Write("|" + grid[i,j]);
-						}
-					}
-
-				}
-				System.Console.WriteLine("|");
-			}
-			*/
-			puzzle.DisplayGrid();
-
-			//Checks each square if they are a start of a word
-			/*
-			for (int i = 0; i < gridHeight - 1; i++)
-			{
-				for (int j = 0; j < gridWidth; j++)
-				{
-					var isWord = true;
-					if (i != 0)
-					{
-						if (grid[i-1, j] != 0)
-						{
-							isWord = false;
-						}
-					}
-					if (grid[i+1, j] == 0)
-					{
-						isWord = false;
-					}
-					if (grid[i, j] == 0)
-					{
-						isWord = false;
-					}
-
-					if (isWord)
-					{
-						var wordLen = 0;
-						var word = new int[15];
-						while (grid[i + wordLen, j] != 0)
-						{
-							word[wordLen] = grid[i + wordLen, j];
-
-							wordLen++;
-							if (i + wordLen == gridHeight)
-							{
-								break;
-							}
-						}
-
-						var CodeWord = "";
-
-						for (int k = 0; k < wordLen; k++)
-						{
-							if (grid[i + k, j] < 10)
-							{
-								CodeWord += "0" + grid[i + k, j];
-							}
-							else
-							{
-								CodeWord += grid[i + k, j];
-							}
-						}
-						words.Add(new Word(CodeWord));
-						words.Count++;
-					}
-				}
-			}
-			for (int i = 0; i < gridHeight; i++)
-			{
-				for (int j = 0; j < gridWidth - 1; j++)
-				{
-					bool IsWord = true;
-					if (j != 0)
-					{
-						if (grid[i, j - 1] != 0)
-						{
-							IsWord = false;
-						}
-					}
-					if (grid[i, j + 1] == 0)
-					{
-						IsWord = false;
-					}
-					if (grid[i, j] == 0)
-					{
-						IsWord = false;
-					}
-
-					if (IsWord)
-					{
-						int WordLen = 0;
-						int[] Word = new int[15];
-						while (grid[i, j + WordLen] != 0)
-						{
-							Word[WordLen] = grid[i, j + WordLen];
-
-							WordLen++;
-							if (j + WordLen == gridWidth)
-							{
-								break;
-							}
-						}
-						var codeWord = "";
-						for (int k = 0; k < WordLen; k++)
-						{
-							if (grid[i, j + k] < 10)
-							{
-								codeWord += "0" + grid[i, j + k];
-							}
-							else
-							{
-								codeWord += grid[i, j + k];
-							}
-						}
-						words.Add(new Word(codeWord));
-						words.Count++;
-					}
-				}
-			}
-			*/
 			var words = puzzle.GetWordsFromGrid();
+
+			for (int i = 0; i < 26; i++) 
+				LettersAvailable[i] = !puzzle.IsLetterDecoded(NumToAlphabetLetter(i + 1));
+
+			puzzle.DisplayGrid();
 
 			//Prints coded words + count
 			for (int i = 0; i < words.Count; i++)
@@ -311,38 +130,7 @@ namespace CodeCracker.Console
 			}
 			System.Console.WriteLine();
 
-
-			//var numToLetterCode = new char[] { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
-
-			//Puts given letters in numToLetterCode
-			/*
-			foreach (var givenLetter in givenLetters.Split(' '))
-			{
-				if (givenLetter.Length != 3)
-				{
-					System.Console.WriteLine("Your 'given letter' length isn't 3... BROKE");
-					return false;
-				}
-				var num = int.Parse(givenLetter.Substring(0, 2));
-				var letter = givenLetter.ToCharArray()[2];
-				numToLetterCode[num - 1] = letter;
-				LettersAvailable[AlphabetLetterToNum(letter) - 1] = false;
-			}
-			*/
-
-			/*
-			foreach (var (num, letter) in import.GetGivenLetters())
-			{
-				puzzle.DecodeNumber(num, letter);
-				LettersAvailable[AlphabetLetterToNum(letter) - 1] = false;
-			}*/
-
-			
-
-			
-
 			var lettersAvailableBackup = LettersAvailable;
-			//var numToLetterCodeBackup = numToLetterCode;
 			puzzle.BackupDecodedLetters();
 			var wordsBackup = words;
 			var guessing = false;
@@ -370,26 +158,7 @@ namespace CodeCracker.Console
 						System.Console.WriteLine();
 					}
 				}
-				//Say Current letter/number code
-				/*
-				System.Console.WriteLine("The current letter/number code is:");
-				for (int i = 0; i < 26; i++)
-				{
-					if (i == 13)
-					{
-						System.Console.WriteLine();
-					}
-					if (i < 9)
-					{
-						System.Console.Write("0");
-					}
-					System.Console.Write($"{i+1}: {char.ToUpper(numToLetterCode[i])}  ");
-					if (i == 25)
-					{
-						System.Console.WriteLine();
-					}
-				}
-				*/
+				
 				puzzle.DisplayEncodedLetters();
 
 				//Prints out words with how many blanks they have and update each words' letters codings
@@ -483,7 +252,6 @@ namespace CodeCracker.Console
 						if (!charDone[AlphabetLetterToNum(codeLetter) - 1] && puzzle.IsNumberDecoded(codeNumber))
 						{
 							puzzle.DecodeNumber(codeNumber, codeLetter);
-							//numToLetterCode[codeNumber - 1] = codeLetter;
 							LettersAvailable[AlphabetLetterToNum(codeLetter) - 1] = false;
 
 							for (int j = 0; j < words.Count; j++)
@@ -601,7 +369,6 @@ namespace CodeCracker.Console
 						guessingSolutionWordBackup.Copy(guessingSolutionWord);
 
 						lettersAvailableBackup = LettersAvailable;
-						//numToLetterCodeBackup = numToLetterCode;
 						puzzle.BackupDecodedLetters();
 						wordsBackup = words;
 
@@ -614,7 +381,6 @@ namespace CodeCracker.Console
 							if (!charDone[AlphabetLetterToNum(codeLetter) - 1] && puzzle.IsNumberDecoded(codeNumber))
 							{
 								puzzle.DecodeNumber(codeNumber, codeLetter);
-								//numToLetterCode[codeNumber - 1] = codeLetter;
 								LettersAvailable[AlphabetLetterToNum(codeLetter) - 1] = false;
 
 								guessingSolutionWord.UpdateLetterDecoding(codeNumber, codeLetter);
