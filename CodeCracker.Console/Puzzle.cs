@@ -14,20 +14,15 @@ namespace CodeCracker.Console
         private Dictionary<int, char> NumToLetter;
         private Dictionary<int, char> NumToLetter2;
 
-        public Puzzle(string title, int gridHeight, int gridWidth, string[] codedLines)
-        {
-            Title = title;
-            GridDimensions = (gridHeight, gridWidth);
-            Grid = CreateGrid(codedLines);
-            NumToLetter = new Dictionary<int, char>();
-        }
-
         public Puzzle(PuzzleImporter import)
         {
             Title = import.GetTitle();
             GridDimensions = (import.GetGridHeight(), import.GetGridWidth()); 
             Grid = CreateGrid(import.GetCodedLines());
             NumToLetter = new Dictionary<int, char>();
+
+            foreach (var (num, letter) in import.GetGivenLetters()) 
+                DecodeNumber(num, letter);
         }
 
         public bool IsSolved()
@@ -38,6 +33,16 @@ namespace CodeCracker.Console
         public string GetTitle()
         {
             return Title;
+        }
+
+        public int GetGridHeight()
+        {
+            return GridDimensions.Height;
+        }
+
+        public int GetGridWidth()
+        {
+            return GridDimensions.Width;
         }
 
         public void DecodeNumber(int num, char letter)
@@ -58,9 +63,19 @@ namespace CodeCracker.Console
             return NumToLetter.ContainsKey(num);
         }
 
+        public bool IsLetterDecoded(char letter)
+        {
+            return NumToLetter.ContainsValue(letter);
+        }
+
         public char GetEncodedLetter(int num, char defaultChar = '?')
         {
            return IsNumberDecoded(num) ? NumToLetter.GetValueOrDefault(num) : defaultChar;
+        }
+
+        public char GetEncodedLetter(int i, int j, char defaultChar = '?')
+        {
+            return GetEncodedLetter(Grid.Get(i, j), defaultChar);
         }
 
         public string GetGridNumberAsString(int i, int j, bool trailingZero = false)
@@ -76,7 +91,7 @@ namespace CodeCracker.Console
                 for (int j = 0; j < GridDimensions.Width; j++)
                 {
                     System.Console.Write(
-                        Grid.Exists(i, j) 
+                        !IsGridSquareBlank(i, j)
                         ? (showLetters ? $"| {GetEncodedLetter(Grid.Get(i, j))} " : $"| {GetGridNumberAsString(i, j, true)} ") 
                         : (showLetters ? "|   " : "|    ")
                     );
@@ -105,12 +120,12 @@ namespace CodeCracker.Console
                 var v = vertical ? 1 : 0;
                 var h = vertical ? 0 : 1;
 
-                if (!Grid.Exists(x-(1*v), y-(1*h)) && Grid.Exists(x+(1*v), y+(1*h)))
+                if (IsGridSquareBlank(x-(1*v), y-(1*h)) && !IsGridSquareBlank(x+(1*v), y+(1*h)))
                 {
                     var wordLen = 2;
                     var codeword = "";
 
-                    while (Grid.Exists(x+(v*wordLen), y+(v*wordLen))) 
+                    while (!IsGridSquareBlank(x+(v*wordLen), y+(h*wordLen))) 
                         wordLen++;
 
                     for (int i = 0; i < wordLen; i++) 
@@ -124,7 +139,7 @@ namespace CodeCracker.Console
             {
                 for (int j = 0; j < GridDimensions.Width; j++)
                 {
-                    if (!Grid.Exists(i, j)) continue;
+                    if (IsGridSquareBlank(i, j)) continue;
                     CheckDirection(i, j, false);
                     CheckDirection(i, j, true);
                 }
@@ -143,6 +158,11 @@ namespace CodeCracker.Console
         {
             NumToLetter = NumToLetter2;
             NumToLetter2 = new Dictionary<int, char>();
+        }
+
+        public bool IsGridSquareBlank(int i, int j)
+        {
+            return !Grid.Exists(i, j) || Grid.Get(i,j).Equals(0);
         }
 
         private DuoKeyDictionary<int, int, int> CreateGrid(string[] codedLines)
