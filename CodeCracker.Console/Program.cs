@@ -105,37 +105,6 @@ namespace CodeCracker.Console
 			}
 			System.Console.WriteLine("Word count is " + words.Count);
 
-			//Counts common letters 
-			var commonLetters = new int[26];
-			for (int i = 0; i < words.Count; i++)
-			{
-				var wordHasNumbers = words[i].HasNumber;
-				for (int j = 0; j < 26; j++)
-				{
-					if (wordHasNumbers[j])
-					{
-						commonLetters[j]++;
-					}
-				}
-			}
-			for (int i = 0; i < 26; i++)
-			{
-				System.Console.WriteLine("The letter " + (i + 1) + " appeared in " + commonLetters[i] + " out of " + words.Count + " words!");
-			}
-			System.Console.WriteLine("Letters that appeared in 14 or more words:");
-			for (int i = 0; i < 26; i++)
-			{
-				if (commonLetters[i] > 13)
-					System.Console.Write(i + 1 + " ");
-			}
-			System.Console.WriteLine("\nLetters that appeared in 3 or less words:");
-			for (int i = 0; i < 26; i++)
-			{
-				if (commonLetters[i] < 4)
-					System.Console.Write(i + 1 + " ");
-			}
-			System.Console.WriteLine();
-
 			var lettersAvailableBackup = lettersAvailable;
 			puzzle.BackupDecodedLetters();
 			var wordsBackup = words;
