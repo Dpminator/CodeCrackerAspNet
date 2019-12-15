@@ -40,9 +40,15 @@ namespace CodeCracker.Console
 			return SolvedWord;
 		}
 
+		//TODO: This method does the wrong thing sometimes??
 		public bool IsNumberDecoded(int codedNumber)
 		{
-			return Code[codedNumber].Letter != '?';
+			foreach (var letterPosition in Code)
+			{
+				if (letterPosition.Value.Number == codedNumber)
+					return letterPosition.Value.Letter != '?';
+			}
+			return false;
 		}
 
 		public IEnumerator<string> GetPossibleSolutions()
@@ -108,7 +114,7 @@ namespace CodeCracker.Console
 			UpdateIfFound();
 		}
 
-		private bool CodeContainsNumber(int num)
+		public bool CodeContainsNumber(int num)
 		{
 			foreach (var letterPosition in Code)
 			{
@@ -120,6 +126,11 @@ namespace CodeCracker.Console
 
 		private void UpdateIfFound()
 		{
+			if (OriginalCode == "252609232515")
+			{
+				System.Console.WriteLine("fgds");
+			}
+
 			var word = "";
 			for (int i = 0; i < WordLength(); i++)
 			{

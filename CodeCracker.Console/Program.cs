@@ -137,7 +137,7 @@ namespace CodeCracker.Console
 					}
 					for (int j = 1; j <= 26; j++)
 					{
-						if (!puzzle.IsNumberDecoded(j) || words[i].IsNumberDecoded(j))
+						if (!puzzle.IsNumberDecoded(j) || !words[i].CodeContainsNumber(j) || words[i].IsNumberDecoded(j))
 						{
 							continue;
 						}
