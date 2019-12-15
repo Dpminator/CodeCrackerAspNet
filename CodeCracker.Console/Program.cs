@@ -110,8 +110,8 @@ namespace CodeCracker.Console
 			var wordsBackup = words;
 			var guessing = false;
 			IEnumerator<string> guessingSolutionsList = null;
-			Word guessingSolutionWord = new Word("01");
-			Word guessingSolutionWordBackup = new Word("02");
+			CodedWord guessingSolutionWord = new CodedWord("01");
+			CodedWord guessingSolutionWordBackup = new CodedWord("02");
 
 
 			while (true)
@@ -149,7 +149,7 @@ namespace CodeCracker.Console
 					}
 				}
 
-				var wordsWithLowBlanks = new List<Word>();
+				var wordsWithLowBlanks = new List<CodedWord>();
 
 				for (int i = 0; i < words.Count; i++)
 				{
@@ -168,7 +168,7 @@ namespace CodeCracker.Console
 						}
 					}
 				}
-				Word lowSolutionsWord = null;
+				CodedWord lowSolutionsWord = null;
 				var lowSolutions = 1000000;
 				var anyWordFoundSolutionless = false;
 				for (int i = 0; i < wordsWithLowBlanks.Count; i++)
@@ -211,8 +211,8 @@ namespace CodeCracker.Console
 					var charDone = new bool[26];
 					for (int i = 0; i < correctSolution.Length; i++)
 					{
-						var codeNumber = guessingSolutionWord.Code[i];
-						var codeLetter = correctSolution.ToLower().ToCharArray()[i];
+						var codeNumber = guessingSolutionWord.GetEncodedNumber(i);
+						var codeLetter = correctSolution.ToLower()[i];
 						if (!charDone[AlphabetLetterToNum(codeLetter) - 1] && puzzle.IsNumberDecoded(codeNumber))
 						{
 							puzzle.DecodeNumber(codeNumber, codeLetter);
@@ -301,7 +301,7 @@ namespace CodeCracker.Console
 					var charDone = new bool[26];
 					for (int i = 0; i < correctSolution.Length; i++)
 					{
-						var codeNumber = lowSolutionsWord.Code[i];
+						var codeNumber = lowSolutionsWord.GetEncodedNumber(i);
 						var codeLetter = correctSolution.ToUpper().ToCharArray()[i];
 						if (!charDone[AlphabetLetterToNum(codeLetter) - 1] && !puzzle.IsNumberDecoded(codeNumber))
 						{
@@ -340,7 +340,7 @@ namespace CodeCracker.Console
 						var charDone = new bool[26];
 						for (int i = 0; i < correctSolution.Length; i++)
 						{
-							var codeNumber = guessingSolutionWord.Code[i];
+							var codeNumber = guessingSolutionWord.GetEncodedNumber(i);
 							var codeLetter = correctSolution.ToLower().ToCharArray()[i];
 							if (!charDone[AlphabetLetterToNum(codeLetter) - 1] && puzzle.IsNumberDecoded(codeNumber))
 							{
@@ -358,7 +358,7 @@ namespace CodeCracker.Console
 									if (!words[j].IsSolved())
 									{
 										words[j].UpdateLetterDecoding(codeNumber, codeLetter);
-										if (words[j].IsSolved() && words[j].Code != guessingSolutionWord.Code)
+										if (words[j].IsSolved() && !CodedWord.CompareCodes(words[j],guessingSolutionWord))
 										{
 											System.Console.WriteLine(words[j].GetSolvedWord() + " was maybe found");
 										}

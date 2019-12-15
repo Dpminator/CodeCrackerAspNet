@@ -111,9 +111,9 @@ namespace CodeCracker.Console
             System.Console.WriteLine();
         }
 
-        public List<Word> GetWordsFromGrid()
+        public List<CodedWord> GetWordsFromGrid()
         {
-            var wordList = new List<Word>();
+            var wordList = new List<CodedWord>();
 
             void CheckDirection(int x, int y, bool vertical)
             {
@@ -131,7 +131,7 @@ namespace CodeCracker.Console
                     for (int i = 0; i < wordLen; i++) 
                         codeword += Grid.Get(x+(i*v), y+(i*h)).ToString("D2");
 
-                    wordList.Add(new Word(codeword));
+                    wordList.Add(new CodedWord(codeword));
                 }
             }
 
