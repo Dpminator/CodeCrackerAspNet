@@ -40,7 +40,6 @@ namespace CodeCracker.Console
 			return SolvedWord;
 		}
 
-		//TODO: This method does the wrong thing sometimes??
 		public bool IsNumberDecoded(int codedNumber)
 		{
 			foreach (var letterPosition in Code)
@@ -134,7 +133,8 @@ namespace CodeCracker.Console
 			var word = "";
 			for (int i = 0; i < WordLength(); i++)
 			{
-				if (!IsNumberDecoded(i)) return;
+				//If posiiton is not decoded
+				if (Code[i].Letter == '?') return;
 				word += Code[i].Letter;
 			}
 			
