@@ -9,32 +9,29 @@ namespace CodeCracker.Console
 		private string OriginalCode;                                 //The original code inputed (e.g: "0224180415")
 		public int[] Code;                                           //An array (size = letters) that has each int of the code
 		public char[] DecodedLetters;                                //An Array (size = letters) that has the decoded letters of the code (or a ? where it isn't solved)
-		private readonly bool Dummy = false;                         //A boolean to denote whether this object is a dummy
 		private HashSet<int> HasNumber;  //Get rid of this once Code isn't an array       //A Hashset of the coded numbers in the word
 		private Dictionary<int, bool> LetterFound;                   //A dictionary that links coded numbers to a bool of if it is found
 		private List<string> PossibleSolutions;                      //An List of all the possible solutions
 		private string SolvedWord;                                   //The string of the word after it has been found
 
-		public Word(string codedWord, bool dummy = false)
+		public Word(string codedWord)
 		{
 			OriginalCode = codedWord;
-			Dummy = dummy;
 			PossibleSolutions = new List<string>();
-			LetterFound = new Dictionary<int, bool>(); 
-			if (!Dummy)
-			{
-				var letters = LettersInWord();
-				Code = SeparateNumbers(letters);
-				SolvedWord = "";
+			LetterFound = new Dictionary<int, bool>();
+			SolvedWord = "";
 
-				DecodedLetters = new char[letters];
-				for (int i = 0; i < letters; i++)
-					DecodedLetters[i] = '?';
+			var letters = LettersInWord();
+			Code = SeparateNumbers(letters);
+			
+			DecodedLetters = new char[letters];
+			for (int i = 0; i < letters; i++)
+				DecodedLetters[i] = '?';
 
-				HasNumber = new HashSet<int>();
-				for (int i = 0; i < Code.Length; i++)
-					HasNumber.Add(Code[i]);
-			}
+			HasNumber = new HashSet<int>();
+			for (int i = 0; i < Code.Length; i++)
+				HasNumber.Add(Code[i]);
+			
 		}
 
 		public string GetOriginalCode()
@@ -88,21 +85,14 @@ namespace CodeCracker.Console
 			return blanks;
 		}
 
-		public static bool CheckWord(string testingWord)
+		public static bool DoesWordExist(string testingWord)
 		{
-			var wordLength = testingWord.Length;
-        
-			if (wordLength > 10)
-			{
-        		wordLength = 10;
-			}
+			//var input = File.ReadAllText($@"C:\Users\Dominic\Desktop\cc\Words{wordLength}.txt");
+			//var allWords = input.Split("\r\n", StringSplitOptions.None);
 
-			var input = File.ReadAllText($@"C:\Users\Dominic\Desktop\cc\Words{wordLength}.txt");
-			var allWords = input.Split("\r\n", StringSplitOptions.None);
-
-			foreach (var word in allWords)
+			foreach (var word in AllWords.GetInstance().GetWordList(testingWord.Length))
 			{
-				if (word.Trim().ToLower().Equals(testingWord.ToLower()))
+				if (word.Equals(testingWord.ToLower()))
 				{
 					return true;
 				}
@@ -209,24 +199,32 @@ namespace CodeCracker.Console
 
 		public static int FindSolutions(string codedWord, List<char> lettersAvailable)
 		{
-			return new Word(codedWord, true).FindPossibleSolutions(lettersAvailable);
+			var words = new Word(codedWord).FindPossibleSolutions(lettersAvailable);
+
+			foreach (var word in words)
+			{
+				System.Console.WriteLine(word);
+			}
+
+			return words.Count;
 		}
 
-		public int FindPossibleSolutions(List<char> lettersAvailable)
+
+		public List<string> FindPossibleSolutions(List<char> lettersAvailable)
 		{
 			var codedWord = ToSearchableWord();
-			var wordLength = codedWord.Length;
-			if (wordLength > 10) wordLength = 10;
-			var allWords = File.ReadAllText($@"C:\Users\Dominic\Desktop\cc\Words{wordLength}.txt").Split("\r\n");
-			var solutions = 0;
+			//var wordLength = codedWord.Length;
+			//if (wordLength > 10) wordLength = 10;
+			//var allWords = File.ReadAllText($@"C:\Users\Dominic\Desktop\cc\Words{wordLength}.txt").Split("\r\n");
+			//var solutions = 0;
 			PossibleSolutions.RemoveRange(0, PossibleSolutions.Count);
 
-			foreach (var dictionaryWord in allWords) //Does the CodedWord match up with the dictionary word?
+			foreach (var dictionaryWord in AllWords.GetInstance().GetWordList(codedWord.Length)) //Does the CodedWord match up with the dictionary word?
 			{
-				if (dictionaryWord.Length == 0) break;
+				//if (dictionaryWord.Length == 0) break;
 				var blankChar = new char[]{ ' ', ' ', ' ', ' ' };
 				var match = true;
-				for (int i = 0; i < wordLength; i++)
+				for (int i = 0; i < codedWord.Length; i++)
 				{
 					if (char.IsLetter(codedWord[i]))
 					{
@@ -259,21 +257,12 @@ namespace CodeCracker.Console
 
 				if (match)
 				{
-					solutions++;
-					if (!Dummy)
-					{
-						PossibleSolutions.Add(dictionaryWord);
-					}else
-					{
-						if (!dictionaryWord.Equals(codedWord))
-						{
-							System.Console.WriteLine(dictionaryWord);
-						}
-					}
+					//solutions++;
+					PossibleSolutions.Add(dictionaryWord);
 				}
 			}
 
-			return solutions;
+			return PossibleSolutions;
 		}
 		
 		private int LettersInWord()

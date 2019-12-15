@@ -176,7 +176,7 @@ namespace CodeCracker.Console
 					var wordWithLowBlanks = wordsWithLowBlanks.ToArray()[i];
 
 					System.Console.Write("Searching word " + (i + 1) + " out of " + wordsWithLowBlanks.Count);
-					var test = wordWithLowBlanks.FindPossibleSolutions(lettersAvailable);
+					var test = wordWithLowBlanks.FindPossibleSolutions(lettersAvailable).Count;
 					System.Console.WriteLine(" - " + wordWithLowBlanks.ToSearchableWord().ToUpper() + " has " + test + " solutions");
 					if (test < lowSolutions && test != 0)
 					{
