@@ -7,8 +7,6 @@ namespace CodeCracker.Console
 
 	class Program
     {
-		static bool[] LettersAvailable = new bool[26];
-
 		public static char NumToAlphabetLetter(int number)
 		{
 			var letter = (char)(number + 64);
@@ -84,18 +82,26 @@ namespace CodeCracker.Console
 
 		static public bool SolveCodeCracker()
         {
+			var lettersAvailable = new List<char>();
 			var puzzle = new Puzzle(new PuzzleImporter(File.ReadAllText(@"C:\Users\Dominic\Desktop\cc\ccImport.txt")));
 			var words = puzzle.GetWordsFromGrid();
 
-			for (int i = 0; i < 26; i++) 
-				LettersAvailable[i] = !puzzle.IsLetterDecoded(NumToAlphabetLetter(i + 1));
+
+			for (int i = 1; i <= 26; i++)
+			{
+				char letter = NumToAlphabetLetter(i);
+				if (!puzzle.IsLetterDecoded(letter))
+				{
+					lettersAvailable.Add(letter);
+				}
+			}
 
 			puzzle.DisplayGrid();
 
 			//Prints coded words + count
 			for (int i = 0; i < words.Count; i++)
 			{
-				System.Console.WriteLine(words[i].OriginalCode);
+				System.Console.WriteLine(words[i].GetOriginalCode());
 			}
 			System.Console.WriteLine("Word count is " + words.Count);
 
@@ -130,34 +136,24 @@ namespace CodeCracker.Console
 			}
 			System.Console.WriteLine();
 
-			var lettersAvailableBackup = LettersAvailable;
+			var lettersAvailableBackup = lettersAvailable;
 			puzzle.BackupDecodedLetters();
 			var wordsBackup = words;
 			var guessing = false;
-			var guessSolutionAttemptNum = 0;
-			var guessingSolutionsList = new List<string>();
+			IEnumerator<string> guessingSolutionsList = null;
 			Word guessingSolutionWord = new Word("01");
 			Word guessingSolutionWordBackup = new Word("02");
+
 
 			while (true)
 			{
 				//Say Current Letters
 				System.Console.WriteLine("The current letters are:");
-				for (int i = 0; i < 26; i++)
+				foreach (var letter in lettersAvailable)
 				{
-					if (LettersAvailable[i])
-					{
-						System.Console.Write(NumToAlphabetLetter(i+1));
-						if (i != 25)
-						{
-							System.Console.Write("  ");
-						}
-					}
-					if (i == 25)
-					{
-						System.Console.WriteLine();
-					}
+					System.Console.Write($"{letter}  ");
 				}
+				System.Console.WriteLine();
 				
 				puzzle.DisplayEncodedLetters();
 
@@ -165,17 +161,17 @@ namespace CodeCracker.Console
 				for (int i = 0; i < words.Count; i++)
 				{
 					var wordChanged = false;
-					if (words[i].Found)
+					if (words[i].IsSolved())
 					{
 						continue;
 					}
-					for (int j = 0; j < 26; j++)
+					for (int j = 1; j <= 26; j++)
 					{
-						if (!puzzle.IsNumberDecoded(j+1) || words[i].LetterFound[j])
+						if (!puzzle.IsNumberDecoded(j) || words[i].IsNumberDecoded(j))
 						{
 							continue;
 						}
-						words[i].UpdateLetterDecoding(j + 1, puzzle.GetEncodedLetter(j + 1));
+						words[i].UpdateLetterDecoding(j, puzzle.GetEncodedLetter(j));
 						wordChanged = true;
 					}
 					if (wordChanged)
@@ -188,7 +184,7 @@ namespace CodeCracker.Console
 
 				for (int i = 0; i < words.Count; i++)
 				{
-					if (words[i].UniqueBlanks() < 4 && !words[i].Found)
+					if (words[i].UniqueBlanks() < 4 && !words[i].IsSolved())
 					{
 						wordsWithLowBlanks.Add(words[i]);
 					}
@@ -197,7 +193,7 @@ namespace CodeCracker.Console
 				{
 					for (int i = 0; i < words.Count; i++)
 					{
-						if (words[i].UniqueBlanks() == 4 && !words[i].Found)
+						if (words[i].UniqueBlanks() == 4 && !words[i].IsSolved())
 						{
 							wordsWithLowBlanks.Add(words[i]);
 						}
@@ -211,7 +207,7 @@ namespace CodeCracker.Console
 					var wordWithLowBlanks = wordsWithLowBlanks.ToArray()[i];
 
 					System.Console.Write("Searching word " + (i + 1) + " out of " + wordsWithLowBlanks.Count);
-					var test = wordWithLowBlanks.FindPossibleSolutions(LettersAvailable);
+					var test = wordWithLowBlanks.FindPossibleSolutions(lettersAvailable);
 					System.Console.WriteLine(" - " + wordWithLowBlanks.ToSearchableWord().ToUpper() + " has " + test + " solutions");
 					if (test < lowSolutions && test != 0)
 					{
@@ -237,13 +233,12 @@ namespace CodeCracker.Console
 						break;
 					}
 					
-					LettersAvailable = lettersAvailableBackup;
+					lettersAvailable = lettersAvailableBackup;
 					puzzle.RestoreDecodedLetters();
-					//numToLetterCode = numToLetterCodeBackup;
 					words = wordsBackup;
 					guessingSolutionWord.Copy(guessingSolutionWordBackup);
-					guessSolutionAttemptNum++;
-					var correctSolution = guessingSolutionsList.ToArray()[guessSolutionAttemptNum] + "";
+					guessingSolutionsList.MoveNext();
+					var correctSolution = guessingSolutionsList.Current;
 					var charDone = new bool[26];
 					for (int i = 0; i < correctSolution.Length; i++)
 					{
@@ -252,25 +247,25 @@ namespace CodeCracker.Console
 						if (!charDone[AlphabetLetterToNum(codeLetter) - 1] && puzzle.IsNumberDecoded(codeNumber))
 						{
 							puzzle.DecodeNumber(codeNumber, codeLetter);
-							LettersAvailable[AlphabetLetterToNum(codeLetter) - 1] = false;
+							lettersAvailable.Remove(char.ToUpper(codeLetter));
 
 							for (int j = 0; j < words.Count; j++)
 							{
-								if (!words[j].Found)
+								if (!words[j].IsSolved())
 								{
 									words[j].UpdateLetterDecoding(codeNumber, codeLetter);
-									if (words[j].Found)
+									if (words[j].IsSolved())
 									{
-										System.Console.WriteLine("Word maybe found: " + words[j].FoundWord);
+										System.Console.WriteLine("Word maybe found: " + words[j].GetSolvedWord());
 									}
 								}
 							}
 
 							guessingSolutionWord.UpdateLetterDecoding(codeNumber, codeLetter);
 
-							if (guessingSolutionWord.Found)
+							if (guessingSolutionWord.IsSolved())
 							{
-								System.Console.WriteLine(guessingSolutionWord.FoundWord + " is being tested as a solution...");
+								System.Console.WriteLine(guessingSolutionWord.GetSolvedWord() + " is being tested as a solution...");
 							}
 						}
 						charDone[AlphabetLetterToNum(codeLetter) - 1] = true;
@@ -332,7 +327,8 @@ namespace CodeCracker.Console
 
 				if (lowSolutions == 1)
 				{
-					var correctSolution = lowSolutionsWord.PossibleSolutions.ToArray()[lowSolutionsWord.PossibleSolutions.Count - 1] + "";
+					var lowSolWordEnumerator = lowSolutionsWord.GetPossibleSolutions();
+					var correctSolution = lowSolWordEnumerator.Current;
 					var charDone = new bool[26];
 					for (int i = 0; i < correctSolution.Length; i++)
 					{
@@ -341,16 +337,15 @@ namespace CodeCracker.Console
 						if (!charDone[AlphabetLetterToNum(codeLetter) - 1] && !puzzle.IsNumberDecoded(codeNumber))
 						{
 							puzzle.DecodeNumber(codeNumber, codeLetter);
-							//numToLetterCode[codeNumber - 1] = codeLetter;
-							LettersAvailable[AlphabetLetterToNum(codeLetter) - 1] = false;
+							lettersAvailable.Remove(char.ToUpper(codeLetter));
 							for (int j = 0; j < words.Count; j++)
 							{
-								if (!words[j].Found)
+								if (!words[j].IsSolved())
 								{
 									words[j].UpdateLetterDecoding(codeNumber, codeLetter);
-									if (words[j].Found)
+									if (words[j].IsSolved())
 									{
-										System.Console.WriteLine("Word found: " + words[j].FoundWord);
+										System.Console.WriteLine("Word found: " + words[j].GetSolvedWord());
 									}
 								}
 							}
@@ -364,15 +359,15 @@ namespace CodeCracker.Console
 					if (!guessing)
 					{
 						guessing = true;
-						guessingSolutionsList = lowSolutionsWord.PossibleSolutions;
+						guessingSolutionsList = lowSolutionsWord.GetPossibleSolutions();
 						guessingSolutionWord.Copy(lowSolutionsWord);
 						guessingSolutionWordBackup.Copy(guessingSolutionWord);
 
-						lettersAvailableBackup = LettersAvailable;
+						lettersAvailableBackup = lettersAvailable;
 						puzzle.BackupDecodedLetters();
 						wordsBackup = words;
 
-						var correctSolution = guessingSolutionsList.ToArray()[0];
+						var correctSolution = guessingSolutionsList.Current;
 						var charDone = new bool[26];
 						for (int i = 0; i < correctSolution.Length; i++)
 						{
@@ -381,22 +376,22 @@ namespace CodeCracker.Console
 							if (!charDone[AlphabetLetterToNum(codeLetter) - 1] && puzzle.IsNumberDecoded(codeNumber))
 							{
 								puzzle.DecodeNumber(codeNumber, codeLetter);
-								LettersAvailable[AlphabetLetterToNum(codeLetter) - 1] = false;
+								lettersAvailable.Remove(char.ToUpper(codeLetter));
 
 								guessingSolutionWord.UpdateLetterDecoding(codeNumber, codeLetter);
-								if (guessingSolutionWord.Found)
+								if (guessingSolutionWord.IsSolved())
 								{
-									System.Console.WriteLine(guessingSolutionWord.FoundWord + " is being tested as a solution...");
+									System.Console.WriteLine(guessingSolutionWord.GetSolvedWord() + " is being tested as a solution...");
 								}
 
 								for (int j = 0; j < words.Count; j++)
 								{
-									if (!words[j].Found)
+									if (!words[j].IsSolved())
 									{
 										words[j].UpdateLetterDecoding(codeNumber, codeLetter);
-										if (words[j].Found && words[j].Code != guessingSolutionWord.Code)
+										if (words[j].IsSolved() && words[j].Code != guessingSolutionWord.Code)
 										{
-											System.Console.WriteLine(words[j].FoundWord + " was maybe found");
+											System.Console.WriteLine(words[j].GetSolvedWord() + " was maybe found");
 										}
 									}
 								}

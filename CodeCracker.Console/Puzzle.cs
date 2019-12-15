@@ -12,7 +12,7 @@ namespace CodeCracker.Console
         private readonly (int Height, int Width) GridDimensions;
         private readonly DuoKeyDictionary<int, int, int> Grid;
         private Dictionary<int, char> NumToLetter;
-        private Dictionary<int, char> NumToLetter2;
+        private Dictionary<int, char> NumToLetterBackup;
 
         public Puzzle(PuzzleImporter import)
         {
@@ -150,14 +150,14 @@ namespace CodeCracker.Console
 
         public void BackupDecodedLetters()
         { 
-            NumToLetter2 = new Dictionary<int, char>();
-            NumToLetter2 = NumToLetter;
+            NumToLetterBackup = new Dictionary<int, char>();
+            NumToLetterBackup = NumToLetter;
         }
 
         public void RestoreDecodedLetters()
         {
-            NumToLetter = NumToLetter2;
-            NumToLetter2 = new Dictionary<int, char>();
+            NumToLetter = NumToLetterBackup;
+            NumToLetterBackup = new Dictionary<int, char>();
         }
 
         public bool IsGridSquareBlank(int i, int j)

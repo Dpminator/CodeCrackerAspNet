@@ -6,52 +6,77 @@ namespace CodeCracker.Console
 {
 	public class Word
 	{
-		public string OriginalCode;                                  //The original code inputed (e.g: "0224180415")
-		public int Letters;                                          //The number of letters the word has
+		private string OriginalCode;                                 //The original code inputed (e.g: "0224180415")
 		public int[] Code;                                           //An array (size = letters) that has each int of the code
 		public char[] DecodedLetters;                                //An Array (size = letters) that has the decoded letters of the code (or a ? where it isn't solved)
-		public bool Found;                                           //A boolean to see if the word is complete or not
-		public bool Dummy = false;                                   //A boolean to denote whether this object is a dummy
+		private readonly bool Dummy = false;                         //A boolean to denote whether this object is a dummy
 		public bool[] HasNumber;                                     //A boolean array (size = 26) that says whether the word has the NUMBER (not the letter of the alphabet)
-		public bool[] LetterFound = new bool[26];                    //A boolean array (size = 26) to say whether that letter is found
-		public List<string> PossibleSolutions = new List<string>();  //An ArrayList of all the possible solutions
-		public string FoundWord;                                     //The string of the word after it has been found
+		private Dictionary<int, bool> LetterFound;                   //A boolean array (size = 26) to say whether that letter is found
+		private List<string> PossibleSolutions;                      //An ArrayList of all the possible solutions
+		private string SolvedWord;                                   //The string of the word after it has been found
 
 		public Word(string codedWord, bool dummy = false)
 		{
 			OriginalCode = codedWord;
 			Dummy = dummy;
+			PossibleSolutions = new List<string>();
+			LetterFound = new Dictionary<int, bool>(); 
 			if (!Dummy)
 			{
-				Letters = LettersInWord();
-				Code = SeparateNumbers();
-				DecodedLetters = new char[Letters];
-				for (int i = 0; i < Letters; i++)
+				var letters = LettersInWord();
+				Code = SeparateNumbers(letters);
+				DecodedLetters = new char[letters];
+				for (int i = 0; i < letters; i++)
 					DecodedLetters[i] = '?';
-				Found = false;
 				HasNumber = CheckNumbers();
+				SolvedWord = "";
 			}
+		}
+
+		public string GetOriginalCode()
+		{ 
+			return OriginalCode;
+		}
+
+		public bool IsSolved()
+		{
+			return SolvedWord != "";
+		}
+
+		public string GetSolvedWord()
+		{
+			return SolvedWord;
+		}
+
+		public bool IsNumberDecoded(int codedNumber)
+		{
+			return LetterFound.GetValueOrDefault(codedNumber);
+		}
+
+		public IEnumerator<string> GetPossibleSolutions()
+		{
+			var enumerator = PossibleSolutions.GetEnumerator();
+			enumerator.MoveNext();
+			return enumerator;
 		}
 
 		public void Copy(Word OtherWord)
 		{
 			OriginalCode = OtherWord.OriginalCode;
-			Letters = OtherWord.Letters;
 			Code = OtherWord.Code;
 			DecodedLetters = OtherWord.DecodedLetters;
-			Found = OtherWord.Found;
 			HasNumber = OtherWord.HasNumber;
 			LetterFound = OtherWord.LetterFound;
 			PossibleSolutions = OtherWord.PossibleSolutions;
-			FoundWord = OtherWord.FoundWord;
+			SolvedWord = OtherWord.SolvedWord;
 		}
 
 		public int UniqueBlanks()
 		{
 			var blanks = 0;
-			for (int i = 0; i < 26; i++)
+			for (int i = 1; i <= 26; i++)
 			{
-				if (HasNumber[i] && !LetterFound[i])
+				if (HasNumber[i-1] && !LetterFound.GetValueOrDefault(i))
 				{
 					blanks++;
 				}
@@ -84,12 +109,12 @@ namespace CodeCracker.Console
 	
 		public void UpdateLetterDecoding(int letterCode, char realLetter)
 		{
-			for (int i = 0; i < Letters; i++)
+			for (int i = 0; i < Code.Length; i++)
 			{
 				if (Code[i] == letterCode)
 				{
 					DecodedLetters[i] = realLetter;
-					LetterFound[letterCode - 1] = true;
+					LetterFound[letterCode] = true;
 				}
 			}
 			UpdateIfFound();
@@ -100,7 +125,7 @@ namespace CodeCracker.Console
 		{
 			var hasUnkownLetter = false;
 			var word = "";
-			for (int i = 0; i < Letters; i++)
+			for (int i = 0; i < DecodedLetters.Length; i++)
 			{
 				if (DecodedLetters[i] == '?')
 				{
@@ -113,15 +138,14 @@ namespace CodeCracker.Console
 			}
 			if (!hasUnkownLetter)
 			{
-				FoundWord = word;
-				Found = true;
+				SolvedWord = word;
 			}
 		}
 
 		public string ToCurrentCode()
 		{
 			var currentCode = "";
-			for (int i = 0; i < Letters; i++)
+			for (int i = 0; i < DecodedLetters.Length; i++)
 			{
 				if (DecodedLetters[i] != '?')
 				{
@@ -144,12 +168,13 @@ namespace CodeCracker.Console
 
 		public string ToSearchableWord()
 		{
-			var lettersDone = new bool[Letters];
-			var fixedLetters = new char[Letters];
+			var letters = Code.Length;
+			var lettersDone = new bool[letters];
+			var fixedLetters = new char[letters];
 			var fixedWord = "";
 			var currentBlank = 1;
 
-			for (int i = 0; i < Letters; i++)
+			for (int i = 0; i < letters; i++)
 			{
 				if (char.IsLetter(DecodedLetters[i]))
 				{
@@ -159,7 +184,7 @@ namespace CodeCracker.Console
 				{
 					fixedLetters[i] = ("" + currentBlank).ToCharArray()[0];
 					lettersDone[i] = true;
-					for (int j = 0; j < Letters; j++)
+					for (int j = 0; j < letters; j++)
 					{
 						if (Code[j] == Code[i] && j != i)
 						{
@@ -170,7 +195,7 @@ namespace CodeCracker.Console
 					currentBlank++;
 				}
 			}
-			for (int i = 0; i < Letters; i++)
+			for (int i = 0; i < letters; i++)
 			{
 				fixedWord += fixedLetters[i];
 			}
@@ -178,12 +203,12 @@ namespace CodeCracker.Console
 			return fixedWord.ToLower();
 		}
 
-		public static int FindSolutions(string codedWord, bool[] lettersAvailable)
+		public static int FindSolutions(string codedWord, List<char> lettersAvailable)
 		{
 			return new Word(codedWord, true).FindPossibleSolutions(lettersAvailable);
 		}
 
-		public int FindPossibleSolutions(bool[] lettersAvailable)
+		public int FindPossibleSolutions(List<char> lettersAvailable)
 		{
 			var codedWord = ToSearchableWord();
 			var wordLength = codedWord.Length;
@@ -192,34 +217,34 @@ namespace CodeCracker.Console
 			var solutions = 0;
 			PossibleSolutions.RemoveRange(0, PossibleSolutions.Count);
 
-			foreach (var DictionaryWord in allWords) //Does the CodedWord match up with the dictionary word?
+			foreach (var dictionaryWord in allWords) //Does the CodedWord match up with the dictionary word?
 			{
-				if (DictionaryWord.Length == 0) break;
+				if (dictionaryWord.Length == 0) break;
 				var blankChar = new char[]{ ' ', ' ', ' ', ' ' };
 				var match = true;
 				for (int i = 0; i < wordLength; i++)
 				{
-					if (char.IsLetter(codedWord.ToCharArray()[i]))
+					if (char.IsLetter(codedWord[i]))
 					{
-						if (codedWord.ToCharArray()[i] != DictionaryWord.ToCharArray()[i])
+						if (codedWord[i] != dictionaryWord[i])
 						{
 							match = false;
 							break;
 						}
 					}else
 					{
-						var blankNumber = int.Parse("" + codedWord.ToCharArray()[i]) - 1;
+						var blankNumber = int.Parse("" + codedWord[i]) - 1;
 						if (blankChar[blankNumber] == ' ')
 						{
-							if (!lettersAvailable[Program.AlphabetLetterToNum(DictionaryWord.ToCharArray()[i]) - 1])
+							if (!lettersAvailable.Contains(char.ToUpper(dictionaryWord[i])))
 							{
 								match = false;
 								break;
 							}
-							blankChar[blankNumber] = DictionaryWord.ToCharArray()[i];
+							blankChar[blankNumber] = dictionaryWord[i];
 						}else
 						{
-							if (blankChar[blankNumber] != DictionaryWord.ToCharArray()[i] || !lettersAvailable[Program.AlphabetLetterToNum(DictionaryWord.ToCharArray()[i]) - 1])
+							if (blankChar[blankNumber] != dictionaryWord[i] || !lettersAvailable.Contains(char.ToUpper(dictionaryWord[i])))
 							{
 								match = false;
 								break;
@@ -227,17 +252,18 @@ namespace CodeCracker.Console
 						}
 					}
 				}
+
 				if (match)
 				{
 					solutions++;
 					if (!Dummy)
 					{
-						PossibleSolutions.Add(DictionaryWord);
+						PossibleSolutions.Add(dictionaryWord);
 					}else
 					{
-						if (!DictionaryWord.Equals(codedWord))
+						if (!dictionaryWord.Equals(codedWord))
 						{
-							System.Console.WriteLine(DictionaryWord);
+							System.Console.WriteLine(dictionaryWord);
 						}
 					}
 				}
@@ -258,11 +284,11 @@ namespace CodeCracker.Console
 			
 		}
 
-		private int[] SeparateNumbers()
+		private int[] SeparateNumbers(int letters)
 		{
-			var code = new int[Letters];
+			var code = new int[letters];
 			var originalCodeArray = OriginalCode.ToCharArray();
-			for (int i = 0, j = 0; i < Letters; i++, j += 2)
+			for (int i = 0, j = 0; i < letters; i++, j += 2)
 			{
 				code[i] = int.Parse($"{originalCodeArray[j]}{originalCodeArray[j + 1]}");
 			}
