@@ -4,9 +4,10 @@ using System.IO;
 
 namespace CodeCracker.Console
 {
-
 	class Program
     {
+		private static readonly string _directory = @"C:\Users\Dominic\Desktop\cc\";
+
 		public static char NumToAlphabetLetter(int number)
 		{
 			var letter = (char)(number + 64);
@@ -24,7 +25,7 @@ namespace CodeCracker.Console
 
 		public static void CreateHtmlResults(Puzzle puzzle)
 		{
-			using var output = new System.IO.StreamWriter(@"C:\Users\Dominic\Desktop\cc\Results.html");
+			using var output = new System.IO.StreamWriter($@"{_directory}Results.html");
 			output.WriteLine("<!DOCTYPE html>");
 			output.WriteLine("<html>");
 			output.WriteLine("<head>");
@@ -83,7 +84,7 @@ namespace CodeCracker.Console
 		static public bool SolveCodeCracker()
         {
 			var lettersAvailable = new List<char>();
-			var puzzle = new Puzzle(new PuzzleImporter(File.ReadAllText(@"C:\Users\Dominic\Desktop\cc\ccImport.txt")));
+			var puzzle = new Puzzle(new PuzzleImporter(File.ReadAllText($@"{_directory}ccImport.txt")));
 			var words = puzzle.GetWordsFromGrid();
 
 
@@ -248,7 +249,7 @@ namespace CodeCracker.Console
 					System.Console.WriteLine("Congratulations, it is now solved!");
 					CreateHtmlResults(puzzle);
 
-					using (var output = new System.IO.StreamWriter(@"C:\Users\Dominic\Desktop\cc\Export.txt"))
+					using (var output = new System.IO.StreamWriter($@"{_directory}Export.txt"))
 					{
 						output.WriteLine(puzzle.GetTitle());
 
