@@ -10,9 +10,9 @@ namespace CodeCracker.Console
 		public int[] Code;                                           //An array (size = letters) that has each int of the code
 		public char[] DecodedLetters;                                //An Array (size = letters) that has the decoded letters of the code (or a ? where it isn't solved)
 		private readonly bool Dummy = false;                         //A boolean to denote whether this object is a dummy
-		public bool[] HasNumber;                                     //A boolean array (size = 26) that says whether the word has the NUMBER (not the letter of the alphabet)
-		private Dictionary<int, bool> LetterFound;                   //A boolean array (size = 26) to say whether that letter is found
-		private List<string> PossibleSolutions;                      //An ArrayList of all the possible solutions
+		private HashSet<int> HasNumber;  //Get rid of this once Code isn't an array       //A Hashset of the coded numbers in the word
+		private Dictionary<int, bool> LetterFound;                   //A dictionary that links coded numbers to a bool of if it is found
+		private List<string> PossibleSolutions;                      //An List of all the possible solutions
 		private string SolvedWord;                                   //The string of the word after it has been found
 
 		public Word(string codedWord, bool dummy = false)
@@ -25,11 +25,15 @@ namespace CodeCracker.Console
 			{
 				var letters = LettersInWord();
 				Code = SeparateNumbers(letters);
+				SolvedWord = "";
+
 				DecodedLetters = new char[letters];
 				for (int i = 0; i < letters; i++)
 					DecodedLetters[i] = '?';
-				HasNumber = CheckNumbers();
-				SolvedWord = "";
+
+				HasNumber = new HashSet<int>();
+				for (int i = 0; i < Code.Length; i++)
+					HasNumber.Add(Code[i]);
 			}
 		}
 
@@ -76,7 +80,7 @@ namespace CodeCracker.Console
 			var blanks = 0;
 			for (int i = 1; i <= 26; i++)
 			{
-				if (HasNumber[i-1] && !LetterFound.GetValueOrDefault(i))
+				if (HasNumber.Contains(i) && !LetterFound.GetValueOrDefault(i))
 				{
 					blanks++;
 				}
@@ -293,16 +297,6 @@ namespace CodeCracker.Console
 				code[i] = int.Parse($"{originalCodeArray[j]}{originalCodeArray[j + 1]}");
 			}
 			return code;
-		}
-
-		private bool[] CheckNumbers()
-		{
-			var hasNumbers = new bool[26];
-			for (int i = 0; i < Code.Length; i++)
-			{
-				hasNumbers[Code[i] - 1] = true;
-			}
-			return hasNumbers;
 		}
 	}
 }
