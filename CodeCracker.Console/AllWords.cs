@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CodeCracker.Console
 {
@@ -9,7 +8,7 @@ namespace CodeCracker.Console
         public static AllWords _instance;
         private readonly static int _maxLetters = 15; 
 
-        private Dictionary<int, List<string>> WordLists;
+        private readonly Dictionary<int, List<string>> WordLists;
 
         public static AllWords GetInstance()
         {
@@ -32,7 +31,7 @@ namespace CodeCracker.Console
         private AllWords()
         {
             var url = "http://app.aspell.net/create?max_size=60&spelling=AU&max_variant=0&diacritic=strip&download=wordlist&encoding=utf-8&format=inline";
-            System.Console.WriteLine($"\n\nGetting all English words from:\n{url}\nThis will take a little while...");
+            System.Console.WriteLine($"Getting all English words from:\n{url}\nThis will take a little while...");
 
             WordLists = new Dictionary<int, List<string>>();
             for (int i = 3; i <= _maxLetters; i++)

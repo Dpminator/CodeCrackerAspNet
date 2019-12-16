@@ -7,9 +7,13 @@ namespace CodeCracker.Console
 	{
 		private static readonly AllWords allWords = AllWords.GetInstance();
 
-		private string OriginalCode;                                 //The original code inputed (e.g: "0224180415")
-		private Dictionary<int, (int Number, char Letter)> Code;     //A dicitonary which matches word position to its original code number and letter (Defaulted to '?')
-		private List<string> PossibleSolutions;                      //A List of all the possible solutions
+		private readonly string OriginalCode;                                 //The original code inputed (e.g: "0224180415")
+		private readonly Dictionary<int, (int Number, char Letter)> Code;     //A dicitonary which matches word position to its original code number and letter (Defaulted to '?')
+
+		//TOD: Remove this as a field
+		private readonly List<string> PossibleSolutions;                      //A List of all the possible solutions
+
+
 		private string SolvedWord;                                   //The string of the word after it has been found
 
 		public CodedWord(string codedWord)
@@ -18,10 +22,16 @@ namespace CodeCracker.Console
 			Code = new Dictionary<int, (int, char)>();
 			PossibleSolutions = new List<string>();
 			SolvedWord = "";
-			
-			for (int i = 0, j = 0; i < WordLength(); i++, j += 2)
+
+			var codeNumber = "";
+			foreach ((var num, var index) in OriginalCode.ToListWithIndex())
 			{
-				Code.Add(i, (int.Parse($"{OriginalCode[j]}{OriginalCode[j + 1]}"), '?'));
+				codeNumber += num;
+
+				if (index % 2 == 1)
+				{
+					Code.Add((index-1)/2, (int.Parse(codeNumber.Substring(index-1)), '?'));
+				}
 			}
 		}
 
@@ -65,14 +75,6 @@ namespace CodeCracker.Console
 		public static bool CompareCodes(CodedWord w1, CodedWord w2)
 		{
 			return w1.OriginalCode == w2.OriginalCode;
-		}
-
-		public void Copy(CodedWord OtherWord)
-		{
-			OriginalCode = OtherWord.OriginalCode;
-			Code = OtherWord.Code;
-			PossibleSolutions = OtherWord.PossibleSolutions;
-			SolvedWord = OtherWord.SolvedWord;
 		}
 
 		public int UniqueBlanks()
@@ -125,43 +127,22 @@ namespace CodeCracker.Console
 
 		private void UpdateIfFound()
 		{
-			if (OriginalCode == "252609232515")
-			{
-				System.Console.WriteLine("fgds");
-			}
-
 			var word = "";
-			for (int i = 0; i < WordLength(); i++)
+			foreach ((var index, (var num, var letter)) in Code)
 			{
-				//If posiiton is not decoded
-				if (Code[i].Letter == '?') return;
-				word += Code[i].Letter;
+				if (letter.Equals('?')) return;
+				word += letter;
 			}
-			
 			SolvedWord = word;
 		}
 
 		public string ToCurrentCode()
 		{
 			var currentCode = "";
-			for (int i = 0; i < WordLength(); i++)
-			{
-				if (Code[i].Letter != '?')
-				{
-					currentCode += Code[i].Letter;
-				}
-				else
-				{
-					if (Code[i].Number < 10)
-					{
-						currentCode += "0" + Code[i].Number;
-					}
-					else
-					{
-						currentCode += Code[i].Number;
-					}
-				}
-			}
+
+			foreach ((var index, (var num, var letter)) in Code)
+				currentCode += letter.Equals('?') ? $"{(num < 10 ? "0" : "")}{num}" : $"{letter.ToString()}";
+
 			return currentCode;
 		}
 
@@ -199,7 +180,7 @@ namespace CodeCracker.Console
 				fixedWord += fixedLetters[i];
 			}
 
-			return fixedWord.ToLower();
+			return fixedWord.ToUpper();
 		}
 
 		public static int FindSolutions(string codedWord, List<char> lettersAvailable)
@@ -218,7 +199,7 @@ namespace CodeCracker.Console
 		public List<string> FindPossibleSolutions(List<char> lettersAvailable)
 		{
 			var letters = WordLength();
-			var codedWord = ToSearchableWord();
+			var codedWord = ToSearchableWord().ToLower();
 			PossibleSolutions.RemoveRange(0, PossibleSolutions.Count);
 
 			foreach (var dictionaryWord in allWords.GetWordList(letters)) //Does the CodedWord match up with the dictionary word?
@@ -234,6 +215,7 @@ namespace CodeCracker.Console
 							match = false;
 							break;
 						}
+						match = true;
 					}else
 					{
 						var blankNumber = int.Parse("" + codedWord[i]) - 1;

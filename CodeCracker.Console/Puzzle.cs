@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CodeCracker.Console
 {
-
+    //TODO: make this class be able to be displayed as a webpage
     public class Puzzle
     {
         private readonly string Title;
@@ -165,9 +165,9 @@ namespace CodeCracker.Console
             return !Grid.Exists(i, j) || Grid.Get(i,j).Equals(0);
         }
 
-        private DuoKeyDictionary<int, int, int> CreateGrid(string[] codedLines)
+        private DuoKeyDictionary<int, int, int> CreateGrid(List<string> codedLines)
         {
-            if (codedLines.Length != GridDimensions.Height)
+            if (codedLines.Count != GridDimensions.Height)
                 throw new InvalidOperationException("The ammount of Coded Lines does not match the Height of the Grid");
             
             var grid = new DuoKeyDictionary<int, int, int>();

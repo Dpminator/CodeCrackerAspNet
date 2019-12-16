@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CodeCracker.Console
 {
@@ -9,8 +8,8 @@ namespace CodeCracker.Console
     {
         private readonly int GridHieght;
         private readonly int GridWidth;
-        private readonly string[] CodedLines;
-        private readonly (int num, char letter)[] GivenLeters;
+        private readonly List<string> CodedLines;
+        private readonly List<(int num, char letter)> GivenLeters;
         private readonly string Title;
 
         public PuzzleImporter(string puzzleImportText)
@@ -36,12 +35,12 @@ namespace CodeCracker.Console
             return GridWidth;
         }
 
-        public string[] GetCodedLines()
+        public List<string> GetCodedLines()
         {
             return CodedLines;
         }
 
-        public (int num, char letter)[] GetGivenLetters()
+        public List<(int num, char letter)> GetGivenLetters()
         {
             return GivenLeters;
         }
@@ -60,12 +59,12 @@ namespace CodeCracker.Console
             return (gridHieght, gridWidth);
         }
 
-        private string[] ImportEncodedNumbers(string[] lines)
+        private List<string> ImportEncodedNumbers(string[] lines)
         {
-            return lines.Skip(1).Take(GridHieght).ToArray();
+            return lines.Skip(1).Take(GridHieght).ToList();
         }
 
-        private (int num, char letter)[] ImportGivenLetters(string[] lines)
+        private List<(int num, char letter)> ImportGivenLetters(string[] lines)
         {
             var givenLetters = new List<(int, char)>();
 
@@ -80,7 +79,7 @@ namespace CodeCracker.Console
                 givenLetters.Add((num, letter));
             }
 
-            return givenLetters.ToArray();
+            return givenLetters;
         }
 
         private string ImportTitle(string[] lines)
