@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CodeCracker.Console
+namespace CodeCracker.Core
 {
     public class PuzzleImporter
     {

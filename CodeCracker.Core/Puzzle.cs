@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace CodeCracker.Console
+namespace CodeCracker.Core
 {
     //TODO: make this class be able to be displayed as a webpage
     public class Puzzle

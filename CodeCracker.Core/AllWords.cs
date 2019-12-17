@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CodeCracker.Console
+namespace CodeCracker.Core
 {
     public class AllWords
     {

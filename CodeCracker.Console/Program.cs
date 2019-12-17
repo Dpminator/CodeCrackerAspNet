@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CodeCracker.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace CodeCracker.Console
 {
@@ -329,14 +329,4 @@ namespace CodeCracker.Console
 			}
 		}
     }
-
-	public static class MyExtensions
-	{
-		public static IEnumerable<(char, int)> ToListWithIndex(this string str)
-		{
-			int num = 0;
-			return from ch in str select (ch, num++);
-		}
-	}
-
 }
