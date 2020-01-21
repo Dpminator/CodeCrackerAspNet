@@ -4,6 +4,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CodeCracker.Core\CodeCracker.Core.csproj" />
+  </ItemGroup>
+
 
 
 </Project>
