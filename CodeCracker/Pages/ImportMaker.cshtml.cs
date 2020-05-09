@@ -10,7 +10,7 @@ namespace CodeCracker.Pages
 {
     public class ImportMakerModel : PageModel
     {
-        public string lines;
+        public string lines = "dfsfggfdggfgsfd";
 
         public void OnGet()
         {
@@ -18,12 +18,8 @@ namespace CodeCracker.Pages
 
         public void OnPost()
         {
-            new PuzzleSolver(lines).SolveCodeCracker();
-        }
-
-        public void ToggleSquare(int id)
-        {
-            System.Console.WriteLine("I MADE IT HERE!!");
+            //new PuzzleSolver(lines).SolveCodeCracker();
+            System.Console.WriteLine("We did it!");
         }
     }
 }

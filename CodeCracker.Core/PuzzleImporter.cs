@@ -11,6 +11,8 @@ namespace CodeCracker.Core
         private readonly List<string> CodedLines;
         private readonly List<(int num, char letter)> GivenLeters;
         private readonly string Title;
+        private readonly bool IsUsingNewWay;
+        private readonly string NewCode;
 
         public PuzzleImporter(string puzzleImportText)
         {
@@ -20,9 +22,61 @@ namespace CodeCracker.Core
 
             GridHieght = height;
             GridWidth = width;
-            CodedLines = ImportEncodedNumbers(lines);
-            GivenLeters = ImportGivenLetters(lines);
-            Title = ImportTitle(lines);
+            CodedLines = ImportEncodedNumbers(lines, height);
+            GivenLeters = ImportGivenLetters(lines[height + 1]);
+            Title = ImportTitle(lines, height);
+            IsUsingNewWay = false;
+        }
+
+        public PuzzleImporter(int height, int width, string code, string letters, string name)
+        {
+            GridHieght = height;
+            GridWidth = width;
+            NewCode = code;
+            GivenLeters = ImportGivenLetters(letters, ',');
+            Title = name;
+            IsUsingNewWay = true;
+        }
+
+        public static (int, int, string, string, string) ConvertOldToNew(string puzzleImportText)
+        {
+            var lines = puzzleImportText.Split("\r\n");
+
+            var (height, width) = ImportGridDimensions(lines);
+            var letters = lines[height + 1].Trim().Replace(' ', ',');
+            var name = ImportTitle(lines, height);
+            var code = "";
+
+            var currentConsecutiveBlanks = 0;
+            foreach (string line in ImportEncodedNumbers(lines, height))
+            {
+                for (int i = 0; i < width; i++)
+                {
+                    var numCodeStr = line.Substring(i * 2, 2);
+
+                    if (!int.TryParse(numCodeStr, out var numCodeInt))
+                        throw new InvalidOperationException("A character in the Coded Lines was not a number");
+
+                    if (numCodeInt == 0)
+                    {
+                        currentConsecutiveBlanks++;
+                        continue;
+                    }
+
+                    if (currentConsecutiveBlanks > 0)
+                    {
+                        if (currentConsecutiveBlanks > 26) 
+                            throw new InvalidOperationException("There are more than 26 blank spaces in a row!");
+                        code += char.ToLower(PuzzleSolver.NumToAlphabetLetter(currentConsecutiveBlanks));
+                        currentConsecutiveBlanks = 0;
+                    }
+
+                    code += PuzzleSolver.NumToAlphabetLetter(numCodeInt);
+                }
+            }
+            if (currentConsecutiveBlanks > 0) code += char.ToLower(PuzzleSolver.NumToAlphabetLetter(currentConsecutiveBlanks));
+
+            return (height, width, code, letters, name);
         }
 
         public int GetGridHeight()
@@ -37,7 +91,21 @@ namespace CodeCracker.Core
 
         public List<string> GetCodedLines()
         {
-            return CodedLines;
+            if (!IsUsingNewWay)
+                return CodedLines;
+            throw new InvalidOperationException("'CodedLines' does not exist for the new way...");
+        }
+
+        public bool IsUsingNewCode()
+        {
+            return IsUsingNewWay;
+        }
+
+        public string GetNewCode()
+        {
+            if (IsUsingNewWay)
+                return NewCode;
+            throw new InvalidOperationException("'NewCode' does not exist for the old way...");
         }
 
         public List<(int num, char letter)> GetGivenLetters()
@@ -50,7 +118,7 @@ namespace CodeCracker.Core
             return Title;
         }
 
-        private (int h, int w) ImportGridDimensions(string[] lines)
+        private static (int h, int w) ImportGridDimensions(string[] lines)
         {
             var gridDimensions = lines[0].Trim().Split('x');
             var gridHieght = int.Parse(gridDimensions[0]);
@@ -59,16 +127,16 @@ namespace CodeCracker.Core
             return (gridHieght, gridWidth);
         }
 
-        private List<string> ImportEncodedNumbers(string[] lines)
+        private static List<string> ImportEncodedNumbers(string[] lines, int gridHeight)
         {
-            return lines.Skip(1).Take(GridHieght).ToList();
+            return lines.Skip(1).Take(gridHeight).ToList();
         }
 
-        private List<(int num, char letter)> ImportGivenLetters(string[] lines)
+        private List<(int num, char letter)> ImportGivenLetters(string lettersLine, char separator = ' ')
         {
             var givenLetters = new List<(int, char)>();
 
-            foreach (var letterCode in lines[GridHieght + 1].Split(' '))
+            foreach (var letterCode in lettersLine.Split(separator))
             {
                 if (letterCode.Length != 3)
                     throw new ArgumentException("Given letter code was not exactly 3 characters");
@@ -82,9 +150,9 @@ namespace CodeCracker.Core
             return givenLetters;
         }
 
-        private string ImportTitle(string[] lines)
+        private static string ImportTitle(string[] lines, int gridHeight)
         {
-            return lines.Length == GridHieght + 3 ? $"{lines[GridHieght + 2].Trim()}" : "Results" ;
+            return lines.Length == gridHeight + 3 ? $"{lines[gridHeight + 2].Trim()}" : "Results" ;
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace CodeCracker.Core
 {
-    //TODO: make this class be able to be displayed as a webpage
     public class Puzzle
     {
         private readonly string Title;
@@ -16,7 +15,7 @@ namespace CodeCracker.Core
         {
             Title = import.GetTitle();
             GridDimensions = (import.GetGridHeight(), import.GetGridWidth()); 
-            Grid = CreateGrid(import.GetCodedLines());
+            Grid = import.IsUsingNewCode() ? CreateGrid(import.GetNewCode()) : CreateGrid(import.GetCodedLines());
             NumToLetter = new Dictionary<int, char>();
 
             foreach (var (num, letter) in import.GetGivenLetters()) 
@@ -163,6 +162,106 @@ namespace CodeCracker.Core
             return !Grid.Exists(i, j) || Grid.Get(i,j).Equals(0);
         }
 
+        public void CreateHtmlResults(string directory)
+        {
+            if (!IsSolved()) 
+                throw new InvalidOperationException("You cannot create a results file when the puzzle is yet to be solved!");
+
+            using var output = new System.IO.StreamWriter($@"{directory}\Results.html");
+            output.WriteLine("<!DOCTYPE html>");
+            output.WriteLine("<html>");
+            output.WriteLine("<head>");
+            output.WriteLine("<title>Results for Code Cracker</title>");
+            output.WriteLine("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>");
+            output.WriteLine("<link href='https://fonts.googleapis.com/css?family=Patrick+Hand' rel='stylesheet'>");
+            output.WriteLine("<style type='text/css'>");
+            output.WriteLine("body { background: #e3cd73; color: #000000; margin-right: 20px; margin-left: 20px; font-size: 14px; font-family: Arial, sans-serif, sans; }");
+            output.WriteLine("h1 { color: #000000; font-size: 36px; text-align: center; }");
+            output.WriteLine("h2 { text-align: center; font-size: 20px; }");
+            output.WriteLine("table.result { border: 1px solid #000000; margin-left: auto; margin-right: auto; padding: 0px; border-spacing: 0px; font-family: sans; font-size: 170%;}");
+            output.WriteLine("table.result td { border: 1px solid #000000; padding: 0px; background: #ffffff; text-align: center; width: 32px; height: 30px; font-family: 'Patrick Hand'; line-height: 0%}");
+            output.WriteLine("table tr td.blank {background: #000000;}");
+            output.WriteLine("div.small{ font-size: 55%; text-align: left; line-height: 100%; position: relative; bottom:9px; left:1px;}");
+            output.WriteLine("div.regular{ position: relative; bottom:4px;}");
+            output.WriteLine("</style>");
+            output.WriteLine("</head>");
+            output.WriteLine("<body>");
+            output.WriteLine($"<h1>{GetTitle()}</h1>");
+            output.WriteLine("<table class='result'>");
+            for (int i = 0; i < GetGridHeight(); i++)
+            {
+                output.WriteLine("<tr>");
+                for (int j = 0; j < GetGridWidth(); j++)
+                {
+                    if (IsGridSquareBlank(i, j))
+                    {
+                        output.WriteLine("<td class = 'blank'></td>");
+                    }
+                    else
+                    {
+                        output.WriteLine("<td><div class = 'small'>" + GetGridNumberAsString(i, j) + "</div><br><div class = 'regular'>" + GetEncodedLetter(i, j) + "</div></td>");
+                    }
+                }
+                output.WriteLine("</tr>");
+            }
+            output.WriteLine("</table>");
+            output.WriteLine("<h2>Letters:</h2>");
+            output.WriteLine("<table class='result'><tr>");
+            for (int i = 1; i <= 26; i++)
+            {
+                if (i == 14) output.WriteLine("</tr><tr>");
+                output.WriteLine("<td><div class = 'small'>" + i + "</div><br><div class = 'regular'>" + GetEncodedLetter(i) + "</div></td>");
+            }
+            output.WriteLine("</tr></table>");
+            output.WriteLine("</table>");
+            output.WriteLine("</body>");
+            output.WriteLine("</html>");
+        }
+
+        public void CreateTextFileResults(string directory)
+        {
+            if (!IsSolved())
+                throw new InvalidOperationException("You cannot create a results file when the puzzle is yet to be solved!");
+
+            using var output = new System.IO.StreamWriter($@"{directory}\Export.txt");
+            output.WriteLine(GetTitle());
+
+            output.WriteLine("----------------------------------------------------------------------------");
+            for (int i = 0; i < GetGridHeight(); i++)
+            {
+                for (int j = 0; j < GetGridWidth(); j++)
+                {
+                    if (IsGridSquareBlank(i, j))
+                    {
+                        output.Write("| ");
+                    }
+                    else
+                    {
+                        output.Write("|" + GetEncodedLetter(i, j));
+                    }
+                }
+                output.WriteLine("|");
+            }
+            output.WriteLine("----------------------------------------------------------------------------\n");
+
+            for (int i = 0; i < 26; i++)
+            {
+                if (i == 13)
+                {
+                    output.WriteLine();
+                }
+                if (i < 9)
+                {
+                    output.Write("0");
+                }
+                output.Write((i + 1) + ": " + GetEncodedLetter(i + 1) + "  ");
+                if (i == 25)
+                {
+                    output.WriteLine();
+                }
+            }
+        }
+
         private DuoKeyDictionary<int, int, int> CreateGrid(List<string> codedLines)
         {
             if (codedLines.Count != GridDimensions.Height)
@@ -190,9 +289,44 @@ namespace CodeCracker.Core
 
             return grid;
         }
-    }
 
-    
+        private DuoKeyDictionary<int, int, int> CreateGrid(string codedLine)
+        {
+            var grid = new DuoKeyDictionary<int, int, int>();
+            (int i, int j) = (0, 0);
+            (int, int) incrementCount()
+            {
+                if (++j == GridDimensions.Width)
+                {
+                    j = 0;
+                    i++;
+                }
+                return (i, j);
+            }
+
+
+            foreach (var codedChar in codedLine)
+            {
+                if (char.IsLower(codedChar))
+                {
+                    //If its a number of blanks
+                    for (var _ = 0; _ < PuzzleSolver.AlphabetLetterToNum(codedChar); _++)
+                    {
+                        grid.Set(i, j, 0);
+                        (i, j) = incrementCount();
+                    }
+                }
+                else 
+                {   
+                    //If its a coded number
+                    grid.Set(i, j, PuzzleSolver.AlphabetLetterToNum(codedChar));
+                    (i, j) = incrementCount();
+                }
+            }
+
+            return grid;
+        }
+    }
 
     class DuoKeyDictionary<K1, K2, V>
     {

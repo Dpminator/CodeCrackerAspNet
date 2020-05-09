@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCracker.Console", "..\C
 		{7F7DB563-3AE0-4C2E-987C-6FEFDF7CEC59} = {7F7DB563-3AE0-4C2E-987C-6FEFDF7CEC59}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCracker.Core", "..\CodeCracker.Core\CodeCracker.Core.csproj", "{7F7DB563-3AE0-4C2E-987C-6FEFDF7CEC59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCracker.Core", "..\CodeCracker.Core\CodeCracker.Core.csproj", "{7F7DB563-3AE0-4C2E-987C-6FEFDF7CEC59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
