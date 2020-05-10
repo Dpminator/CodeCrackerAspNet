@@ -47,28 +47,29 @@
             font-size: 170%;
         }
 
-            table td {
-                border: 1px solid #666666;
-                padding: 0px;
-                background: #ffffff;
-                text-align: center;
-                width: 32px;
-                height: 30px;
-                font-family: 'Patrick Hand';
-                line-height: 0%;
-            }
+        table td {
+            border: 1px solid #666666;
+            padding: 0px;
+            background: #000000;
+            color: #ffffff;
+            text-align: center;
+            width: 32px;
+            height: 30px;
+            font-family: 'Patrick Hand';
+            line-height: 0%;
+        }
 
-            table tr td.black {
-                background: #000000;
-            }
+        table tr td.black {
+            background: #000000;
+        }
 
             table tr td.white {
                 background: #ffffff;
             }
 
-            table.Phase1 tr td:hover {
-                cursor: pointer;
-            }
+        table.Phase1 tr td:hover {
+            cursor: pointer;
+        }
 
         div.small {
             font-size: 55%;
@@ -93,7 +94,7 @@
             text-align: center;
             font-size: 24px;
             font-family: 'Patrick Hand';
-            color: #f00000
+            color: #000000
         }
     </style>
 
@@ -336,7 +337,7 @@
 						TableString = TableString + "<td class = 'black'></td>\n";
 					}else
 					{
-						TableString = TableString + "<td class = 'white'><input type = 'text' id = '" + i + "x" + j + "' value = '??' oninput=\"UpdateCell(id, value)\"></td>\n";
+						TableString = TableString + "<td class = 'white'><input type = 'text' style='color:#f00000' id = '" + i + "x" + j + "' value = '??' oninput=\"UpdateCell(id)\"></td>\n";
 						Grid[i][j] = -1;
 					}
 				}
@@ -350,13 +351,52 @@
 			var rowcol = id.split("x");
 			var row = rowcol[0];
 			var column = rowcol[1];
-			var Number = parseInt(document.getElementById(id).value);
+            var Number = parseInt(document.getElementById(id).value);
+            document.getElementById(id).style.color = "#f00000";
 			if (Number != "NaN")
 			{
 				Grid[row][column] = Number;
-				UpdateCurrentGrid();
-			}
-		}
+                UpdateCurrentGrid();
+                if (Number > 0 && Number <= 26)
+                {
+                    document.getElementById(id).style.color = "#000000";
+                }
+            }
+        }
+
+        function UpdateKnownLetters(id)
+        {
+            var letter = document.getElementById(id).value;
+
+            if (letter.length > 1)
+            {
+                if (letter.substring(0, 1) == "?")
+                    document.getElementById(id).value = letter.substring(1, 2);
+                else
+                    document.getElementById(id).value = letter.substring(0, 1);
+                letter = letter.trim();
+            }
+            if (letter.length == 0 || letter == " ")
+            {
+                document.getElementById(id).value = "?";
+            }
+
+            var letterChar = letter.charAt(0);
+
+            if (letterChar != "?" && !IsLetter(letterChar)) {
+                document.getElementById(id).style.color = "#f00000";
+            } else
+            {
+                document.getElementById(id).style.color = "#000000";
+            }
+
+            UpdateCurrentGrid();
+        }
+
+        function IsLetter(character)
+        {
+            return ((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z'));
+        }
 
 
     </script>
@@ -710,19 +750,19 @@
                 <td>13:</td>
             </tr>
             <tr>
-                <td><input type='text' id='KnownLetter1' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter2' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter3' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter4' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter5' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter6' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter7' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter8' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter9' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter10' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter11' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter12' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter13' value='?' oninput="UpdateCurrentGrid()"></td>
+                <td><input type='text' id='KnownLetter1' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter2' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter3' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter4' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter5' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter6' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter7' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter8' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter9' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter10' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter11' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter12' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter13' value='?' oninput="UpdateKnownLetters(id)"></td>
             </tr>
             <tr>
                 <td>14:</td>
@@ -740,19 +780,19 @@
                 <td>26:</td>
             </tr>
             <tr>
-                <td><input type='text' id='KnownLetter14' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter15' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter16' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter17' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter18' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter19' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter20' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter21' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter22' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter23' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter24' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter25' value='?' oninput="UpdateCurrentGrid()"></td>
-                <td><input type='text' id='KnownLetter26' value='?' oninput="UpdateCurrentGrid()"></td>
+                <td><input type='text' id='KnownLetter14' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter15' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter16' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter17' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter18' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter19' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter20' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter21' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter22' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter23' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter24' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter25' value='?' oninput="UpdateKnownLetters(id)"></td>
+                <td><input type='text' id='KnownLetter26' value='?' oninput="UpdateKnownLetters(id)"></td>
             </tr>
         </table>
     </form>
