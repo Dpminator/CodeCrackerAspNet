@@ -122,7 +122,11 @@
         ];
 
         var Phase = 1;
-        var lines = "";
+        var Title = "Puzzle 1";
+        var OldCode = "";
+        var GridHeight = 19;
+        var GridWidth = 15;
+        var Letters = "";
 
 		function ToggleSquare(id)
         {
@@ -157,7 +161,7 @@
 
 		function UpdateCurrentGrid()
 		{
-			var GridString = "19x15<br>";
+            var GridString = "";
 			for (i = 0; i < 19; i++)
 			{
 				for (j = 0; j < 15; j++)
@@ -165,7 +169,7 @@
 					if (Phase == 1)
 					{
 						if (Grid[i][j] == 0)
-						{
+                        {
 							GridString = GridString + "00";
 						}else
 						{
@@ -193,37 +197,130 @@
 						}
 					}
 
-				}
+                }
 				GridString = GridString + "<br>";
 			}
-
+            OldCode = GridString;
+            GridString = "19x15<br>" + GridString;
+            Letters = "";
 			for (i = 1; i <= 26; i++)
 			{
 				if (document.getElementById("KnownLetter" + i).value != "?" && document.getElementById("KnownLetter" + i).value != "")
 				{
 					if (i < 10)
 					{
-						GridString = GridString + "0" + i + document.getElementById("KnownLetter" + i).value.toLowerCase() + " ";
+						Letters = Letters + "0" + i + document.getElementById("KnownLetter" + i).value.toLowerCase() + " ";
 					}else
 					{
-						GridString = GridString + i + document.getElementById("KnownLetter" + i).value.toLowerCase() + " ";
+						Letters = Letters + i + document.getElementById("KnownLetter" + i).value.toLowerCase() + " ";
 					}
 				}
 			}
 
-			GridString = GridString + "<br>";
+            GridString = GridString + Letters + "<br>";
+            Letters = Letters.trim().replace(/ /g, ",");
 			GridString = GridString + document.getElementById("PuzzleNoteInput").value;
             document.getElementById("DisplayGrid").innerHTML = GridString;
 
-
-            GridString.replace("<br>", "\r\n");
-            lines = GridString;
-
+            if (Phase == 2)
+            {
+                document.getElementById("SolveButton").innerHTML = CreateSolveButton();
+            }
 		}
+
+        function ConvertOldLinesToNewCode()
+        {
+            var newCode = "";
+            var currentConsecutiveBlanks = 0;
+            var oldLines = OldCode.split("<br>");
+
+            for (var lineNum = 0; lineNum < GridHeight; lineNum++)
+            {
+                var line = oldLines[lineNum];
+                for (var i = 0; i < GridWidth; i++)
+                {
+                    var numCodeStr = line.substring(i * 2, (i * 2) + 2);
+                    var numCodeInt = parseInt(numCodeStr);
+                    if (isNaN(numCodeInt))
+                    {
+                        newCode += "?";
+                        return newCode;
+                    }
+                    if (numCodeInt == 0)
+                    {
+                        currentConsecutiveBlanks++;
+                        continue;
+                    }
+                    if (currentConsecutiveBlanks > 0)
+                    {
+                        newCode += NumToAlphabetLetter(currentConsecutiveBlanks).toLowerCase();
+                        currentConsecutiveBlanks = 0;
+                    }
+                    newCode += NumToAlphabetLetter(numCodeInt);
+                }
+            }
+            if (currentConsecutiveBlanks > 0) newCode += NumToAlphabetLetter(currentConsecutiveBlanks, false);
+            
+
+            return newCode;
+        }
+
+        function NumToAlphabetLetter(number, capital = true)
+        {
+            if (!capital)
+            {
+                return NumToAlphabetLetter(number).toLowerCase();
+            }
+
+            switch (number)
+            {
+                case 1: return "A";
+                case 2: return "B";
+                case 3: return "C";
+                case 4: return "D";
+                case 5: return "E";
+                case 6: return "F";
+                case 7: return "G";
+                case 8: return "H";
+                case 9: return "I";
+                case 10: return "J";
+                case 11: return "K";
+                case 12: return "L";
+                case 13: return "M";
+                case 14: return "N";
+                case 15: return "O";
+                case 16: return "P";
+                case 17: return "Q";
+                case 18: return "R";
+                case 19: return "S";
+                case 20: return "T";
+                case 21: return "U";
+                case 22: return "V";
+                case 23: return "W";
+                case 24: return "X";
+                case 25: return "Y";
+                case 26: return "Z";
+                default: return "?";
+            }
+        }
+
+        function CreateSolveButton()
+        {
+            var code = ConvertOldLinesToNewCode();
+            if (code.indexOf("?") >= 0)
+            {
+                return "<button style='position: absolute; bottom:550px; left:1250px;' disabled>Solve this puzzle!</button>";
+            }
+
+            var href = "/PuzzleResults?name=" + Title + "&height=" + GridHeight + "&width=" + GridWidth + "&letters=" + Letters + "&code=" + code;
+            var ButtonHtml = "<button style='position: absolute; bottom:550px; left:1250px;' onclick =\"window.location.href='" + href + "'\">Solve this puzzle!</button>";
+            return ButtonHtml;
+        }
 
 		function SwitchGrid()
 		{
-			document.getElementById("SwitchGridButton").innerHTML = "<form method='post'><button type='submit' style='position: absolute; bottom:550px; left:1250px;'>Solve this puzzle!</button></form>";
+            document.getElementById("SwitchGridButton").innerHTML = CreateSolveButton();
+            document.getElementById("SwitchGridButton").id = "SolveButton";
 			document.getElementById("SymmetricalGridButton").remove();
 			Phase = 2;
 			document.getElementById("MainTable").className = "Phase2";
