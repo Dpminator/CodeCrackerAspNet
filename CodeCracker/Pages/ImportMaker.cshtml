@@ -125,8 +125,8 @@
         var Phase = 1;
         var Title = "Puzzle 1";
         var OldCode = "";
-        var GridHeight = 19;
-        var GridWidth = 15;
+        var GridHeight = @Model.GridHeight;
+        var GridWidth = @Model.GridWidth;
         var Letters = "";
 
 		function ToggleSquare(id)
@@ -142,10 +142,10 @@
 				Grid[rowcol[0]][rowcol[1]] = 1;
 			}
 
-			if (document.getElementById("SymmetricalGrid").checked == true && !(rowcol[0] == 9 && rowcol[1] == 7) )
+			if (document.getElementById("SymmetricalGrid").checked == true && !(rowcol[0] == (GridHeight-1)/2 && rowcol[1] == (GridWidth-1)/2) )
 			{
-				var row = 18 - rowcol[0];
-				var column = 14 - rowcol[1];
+				var row = (GridHeight - 1) - rowcol[0];
+				var column = (GridWidth - 1) - rowcol[1];
 
 				if (document.getElementById(id).className == 'black')
 				{
@@ -163,9 +163,9 @@
 		function UpdateCurrentGrid()
 		{
             var GridString = "";
-			for (i = 0; i < 19; i++)
+			for (i = 0; i < GridHeight; i++)
 			{
-				for (j = 0; j < 15; j++)
+				for (j = 0; j < GridWidth; j++)
 				{
 					if (Phase == 1)
 					{
@@ -202,7 +202,7 @@
 				GridString = GridString + "<br>";
 			}
             OldCode = GridString;
-            GridString = "19x15<br>" + GridString;
+            GridString = @Model.GridHeight + "x" + @Model.GridWidth + "<br>" + GridString;
             Letters = "";
 			for (i = 1; i <= 26; i++)
 			{
@@ -327,10 +327,10 @@
 			document.getElementById("MainTable").className = "Phase2";
 			var TableString = "";
 
-			for (i = 0; i < 19; i++)
+			for (i = 0; i < GridHeight; i++)
 			{
 				TableString = TableString + "<tr>\n"
-				for (j = 0; j < 15; j++)
+				for (j = 0; j < GridWidth; j++)
 				{
 					if (Grid[i][j] == 0)
 					{
@@ -403,399 +403,52 @@
 </head>
 
 <body>
-    <form>
+    <div>
         <h1>Puzzle Title: <input name='PuzzleNote' id="PuzzleNoteInput" value="Puzzle 1" type="text" oninput="UpdateCurrentGrid()"></h1>
-        <div id='SymmetricalGridButton' style='text-align: center;'>Symmetrical grid: <input id='SymmetricalGrid' type='checkbox'></div><br>
+        <div id='SymmetricalGridButton' style='text-align: center;'>Symmetrical grid: <input id='SymmetricalGrid' type='checkbox' checked></div><br>
         <table id='MainTable' class='Phase1'>
-            <tr>
-                <td id='0x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='0x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='1x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='1x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='2x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='2x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='3x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='3x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='4x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='4x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='5x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='5x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='6x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='6x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='7x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='7x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='8x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='8x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='9x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='9x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='10x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='10x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='11x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='11x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='12x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='12x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='13x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='13x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='14x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='14x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='15x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='15x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='16x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='16x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='17x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='17x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
-            <tr>
-                <td id='18x0' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x1' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x2' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x3' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x4' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x5' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x6' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x7' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x8' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x9' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x10' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x11' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x12' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x13' class='white' onClick='ToggleSquare(id)'></td>
-                <td id='18x14' class='white' onClick='ToggleSquare(id)'></td>
-            </tr>
+            @for (int i = 0; i < Model.GridHeight; i++)
+            {
+                <tr>
+                @for (int j = 0; j < Model.GridWidth; j++)
+                {
+                    var id = i + "x" + j;
+                    <td id='@id' class='white' onClick='ToggleSquare(id)'></td>
+                }
+                </tr>
+            }
         </table>
 
         <h2>Letters:</h2>
         <table class='letters'>
             <tr>
-                <td>1:</td>
-                <td>2:</td>
-                <td>3:</td>
-                <td>4:</td>
-                <td>5:</td>
-                <td>6:</td>
-                <td>7:</td>
-                <td>8:</td>
-                <td>9:</td>
-                <td>10:</td>
-                <td>11:</td>
-                <td>12:</td>
-                <td>13:</td>
+                @for (int i = 1; i <= 13; i++)
+                { 
+                    <td>@i:</td>
+                }
             </tr>
             <tr>
-                <td><input type='text' id='KnownLetter1' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter2' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter3' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter4' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter5' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter6' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter7' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter8' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter9' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter10' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter11' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter12' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter13' value='?' oninput="UpdateKnownLetters(id)"></td>
+                @for (int i = 1; i <= 13; i++)
+                {
+                    var id = "KnownLetter" + i;
+                    <td><input type='text' id='@id' value='?' oninput="UpdateKnownLetters(id)"></td>
+                }
             </tr>
             <tr>
-                <td>14:</td>
-                <td>15:</td>
-                <td>16:</td>
-                <td>17:</td>
-                <td>18:</td>
-                <td>19:</td>
-                <td>20:</td>
-                <td>21:</td>
-                <td>22:</td>
-                <td>23:</td>
-                <td>24:</td>
-                <td>25:</td>
-                <td>26:</td>
+                @for (int i = 14; i <= 26; i++)
+                {
+                    <td>@i:</td>
+                }
             </tr>
             <tr>
-                <td><input type='text' id='KnownLetter14' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter15' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter16' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter17' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter18' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter19' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter20' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter21' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter22' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter23' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter24' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter25' value='?' oninput="UpdateKnownLetters(id)"></td>
-                <td><input type='text' id='KnownLetter26' value='?' oninput="UpdateKnownLetters(id)"></td>
+                @for (int i = 14; i <= 26; i++)
+                {
+                    var id = "KnownLetter" + i;
+                    <td><input type='text' id='@id' value='?' oninput="UpdateKnownLetters(id)"></td>
+                }
             </tr>
         </table>
-    </form>
+    </div>
     <div id='SwitchGridButton'><button onclick="SwitchGrid()" style='position: absolute; bottom:550px; left:1250px;'>Finished selecting squares!</button></div>
     <div id='DisplayGrid' style="position: absolute; bottom:350px; left:1500px; text-align: left;">
         19x15<br>

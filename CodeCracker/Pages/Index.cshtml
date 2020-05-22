@@ -4,7 +4,30 @@
     ViewData["Title"] = "Home page";
 }
 
+<head>
+    <script type="text/javascript">
+        var Height = 19;
+        var Width = 15;
+
+        function OnNumberChange()
+        {
+            Height = document.getElementById("Height").value;
+            Width = document.getElementById("Width").value;
+            var href = "/ImportMaker?height=" + Height + "&width=" + Width;
+            document.getElementById("LoadButton").innerHTML = "<button onclick =\"window.location.href='" + href + "'\">Load Import Maker!</button>";
+        }
+
+    </script>
+</head>
+
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+<div>
+    <div>Height:<input id="Height" type="number" value="19" oninput="OnNumberChange()"></div>
+    <br>
+    <div> Width:<input id="Width" type="number" value="15" oninput="OnNumberChange()")></div>
+    <br>
+    <div id="LoadButton"><button onclick="window.location.href='/ImportMaker?height=19&width=15'">Load Import Maker!</button></div>
 </div>
