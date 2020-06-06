@@ -290,7 +290,7 @@ namespace CodeCracker.Core
             return grid;
         }
 
-        private DuoKeyDictionary<int, int, int> CreateGrid(string codedLine)
+        private DuoKeyDictionary<int, int, int> CreateGrid(string code)
         {
             var grid = new DuoKeyDictionary<int, int, int>();
             (int i, int j) = (0, 0);
@@ -305,7 +305,7 @@ namespace CodeCracker.Core
             }
 
 
-            foreach (var codedChar in codedLine)
+            foreach (var codedChar in code)
             {
                 if (char.IsLower(codedChar))
                 {

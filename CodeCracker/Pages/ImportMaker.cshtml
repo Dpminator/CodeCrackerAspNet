@@ -47,29 +47,25 @@
             font-size: 170%;
         }
 
-        table td {
-            border: 1px solid #666666;
-            padding: 0px;
-            background: #000000;
-            color: #ffffff;
-            text-align: center;
-            width: 32px;
-            height: 30px;
-            font-family: 'Patrick Hand';
-            line-height: 0%;
-        }
+            table td {
+                border: 1px solid #666666;
+                padding: 0px;
+                background: #000000;
+                color: #ffffff;
+                text-align: center;
+                width: 32px;
+                height: 30px;
+                font-family: 'Patrick Hand';
+                line-height: 0%;
+            }
 
-        table tr td.black {
-            background: #000000;
-        }
+            table tr td.black {
+                background: #000000;
+            }
 
             table tr td.white {
                 background: #ffffff;
             }
-
-        table.Phase1 tr td:hover {
-            cursor: pointer;
-        }
 
         div.small {
             font-size: 55%;
@@ -99,65 +95,103 @@
     </style>
 
     <script type="text/javascript">
-		var Grid =
-		[
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-        ];
-
-        var Phase = 1;
-        var Title = "Puzzle 1";
         var OldCode = "";
+        var Title = "@Model.Title";
         var GridHeight = @Model.GridHeight;
         var GridWidth = @Model.GridWidth;
         var Letters = "";
+        var Grid = CreateGrid("@Model.Code");
 
-		function ToggleSquare(id)
+        function CreateGrid(code)
+        {
+            var grid = new Array();
+            for (var i = 0; i < GridHeight; i++)
+            {
+                grid[i] = new Array();
+                for (var j = 0; j < GridWidth; j++)
+                {
+                    grid[i][j] = 0;
+                }
+            }
+
+            if (code != "")
+            {
+                var i = 0;
+                var j = 0;
+                function incrementCount()
+                {
+                    if (++j == GridWidth)
+                    {
+                        j = 0;
+                        i++;
+                    }
+                }
+
+                for (var x = 0; x < code.length; x++)
+                {
+                    if (IsLetterLowercase(code[x]))
+                    {
+                        //If its a number of blanks
+                        for (var y = 0; y < AlpabetLetterToNumber(code[x]); y++)
+                        {
+                            grid[i][j] = 0;
+                            incrementCount();
+                        }
+                    }
+                    else 
+                    {   
+                        //If its a coded number
+                        grid[i][j] = AlpabetLetterToNumber(code[x]);
+                        incrementCount();
+                    }
+                }
+            }
+
+            return grid;
+        }
+
+        function ToggleSquare(id)
         {
             var rowcol = id.split("x");
-			if (document.getElementById(id).className == 'white')
+            var SquareElement = document.getElementById(id);
+			if (SquareElement.className == 'white')
 			{
-				document.getElementById(id).className = 'black';
-				Grid[rowcol[0]][rowcol[1]] = 0;
+                SquareElement.className = 'black';
+                SquareElement.removeAttribute("OnDblClick");
+                SquareElement.setAttribute("OnClick", "ToggleSquare(id)");
+                SquareElement.firstChild.setAttribute("hidden", "");
+
 			}else
 			{
-				document.getElementById(id).className = 'white';
-				Grid[rowcol[0]][rowcol[1]] = 1;
-			}
+                SquareElement.className = 'white';
+                SquareElement.removeAttribute("OnClick");
+                SquareElement.setAttribute("OnDblClick", "ToggleSquare(id)");
+                SquareElement.firstChild.removeAttribute("hidden");
+            }
+            Grid[rowcol[0]][rowcol[1]] = -1 * Grid[rowcol[0]][rowcol[1]];
 
 			if (document.getElementById("SymmetricalGrid").checked == true && !(rowcol[0] == (GridHeight-1)/2 && rowcol[1] == (GridWidth-1)/2) )
 			{
 				var row = (GridHeight - 1) - rowcol[0];
-				var column = (GridWidth - 1) - rowcol[1];
+                var column = (GridWidth - 1) - rowcol[1];
+                var oppositeSquareElement = document.getElementById(row + "x" + column);
 
-				if (document.getElementById(id).className == 'black')
+				if (SquareElement.className == 'black')
 				{
-					document.getElementById(row + "x" + column).className = 'black';
-					Grid[row][column] = 0;
+                    oppositeSquareElement.className = 'black';
+                    oppositeSquareElement.removeAttribute("OnDblClick");
+                    oppositeSquareElement.setAttribute("OnClick", "ToggleSquare(id)");
+                    oppositeSquareElement.firstChild.setAttribute("hidden", "");
 				}else
 				{
-					document.getElementById(row + "x" + column).className = 'white';
-					Grid[row][column] = 1;
-				}
+                    oppositeSquareElement.className = 'white';
+                    oppositeSquareElement.removeAttribute("OnClick");
+                    oppositeSquareElement.setAttribute("OnDblClick", "ToggleSquare(id)");
+                    oppositeSquareElement.firstChild.removeAttribute("hidden");
+                }
+                Grid[row][column] = -1 * Grid[row][column];
 			}
-			UpdateCurrentGrid();
+            UpdateCurrentGrid();
 		}
 
 		function UpdateCurrentGrid()
@@ -166,54 +200,40 @@
 			for (i = 0; i < GridHeight; i++)
 			{
 				for (j = 0; j < GridWidth; j++)
-				{
-					if (Phase == 1)
-					{
-						if (Grid[i][j] == 0)
+                {
+                    if (Grid[i][j] <= 0)
+                    {
+                        var gsSection = "00";
+                        if (document.getElementById(i + "x" + j).className == "white")
                         {
-							GridString = GridString + "00";
-						}else
-						{
-							GridString = GridString + "??";
-						}
+                            gsSection = "??";
+                        }
+                        GridString = GridString + gsSection;
+                    } else
+                    if (Grid[i][j] > 9)
+					{
+						GridString = GridString + Grid[i][j];
 					}else
 					{
-						if (Grid[i][j] == 0)
-						{
-							GridString = GridString + "00";
-						}else
-						{
-							if (Grid[i][j] == -1)
-							{
-								GridString = GridString + "??";
-								continue;
-							}
-							if (Grid[i][j] > 9)
-							{
-								GridString = GridString + Grid[i][j];
-							}else
-							{
-								GridString = GridString + "0" + Grid[i][j];
-							}
-						}
+						GridString = GridString + "0" + Grid[i][j];
 					}
-
                 }
 				GridString = GridString + "<br>";
 			}
             OldCode = GridString;
-            GridString = @Model.GridHeight + "x" + @Model.GridWidth + "<br>" + GridString;
+            GridString = GridHeight + "x" + GridWidth + "<br>" + GridString;
             Letters = "";
 			for (i = 1; i <= 26; i++)
-			{
-				if (document.getElementById("KnownLetter" + i).value != "?" && document.getElementById("KnownLetter" + i).value != "")
+            {
+                var klValue = document.getElementById("KnownLetter" + i).value;
+				if (klValue.length == 1 && IsLetter(klValue))
 				{
 					if (i < 10)
 					{
-						Letters = Letters + "0" + i + document.getElementById("KnownLetter" + i).value.toLowerCase() + " ";
+						Letters = Letters + "0" + i + klValue.toLowerCase() + " ";
 					}else
 					{
-						Letters = Letters + i + document.getElementById("KnownLetter" + i).value.toLowerCase() + " ";
+						Letters = Letters + i + klValue.toLowerCase() + " ";
 					}
 				}
 			}
@@ -222,11 +242,7 @@
             Letters = Letters.trim().replace(/ /g, ",");
 			GridString = GridString + document.getElementById("PuzzleNoteInput").value;
             document.getElementById("DisplayGrid").innerHTML = GridString;
-
-            if (Phase == 2)
-            {
-                document.getElementById("SolveButton").innerHTML = CreateSolveButton();
-            }
+            document.getElementById("SolveButton").innerHTML = CreateSolveButton();
 		}
 
         function ConvertOldLinesToNewCode()
@@ -254,20 +270,33 @@
                     }
                     if (currentConsecutiveBlanks > 0)
                     {
-                        newCode += NumToAlphabetLetter(currentConsecutiveBlanks).toLowerCase();
+                        newCode += NumToAlphabetLetter(currentConsecutiveBlanks, false);
                         currentConsecutiveBlanks = 0;
                     }
                     newCode += NumToAlphabetLetter(numCodeInt);
                 }
             }
             if (currentConsecutiveBlanks > 0) newCode += NumToAlphabetLetter(currentConsecutiveBlanks, false);
-            
+
 
             return newCode;
         }
 
         function NumToAlphabetLetter(number, capital = true)
         {
+            if (number > 26)
+            {
+                var letfoverNum = num % 26;
+                var whole26 = (num - letfoverNum) / 26;
+                var result = "";
+
+                for (var i = 0; i < whole26; i++)
+                    result = result + "z";
+                result = result + NumToAlphabetLetter(letfoverNum, false);
+
+                return result
+            }
+
             if (!capital)
             {
                 return NumToAlphabetLetter(number).toLowerCase();
@@ -305,6 +334,42 @@
             }
         }
 
+        function AlpabetLetterToNumber(letter)
+        {
+            letter = letter.toUpperCase();
+
+            switch (letter)
+            {
+                case 'A': return 1;
+                case 'B': return 2;
+                case 'C': return 3;
+                case 'D': return 4;
+                case 'E': return 5;
+                case 'F': return 6;
+                case 'G': return 7;
+                case 'H': return 8;
+                case 'I': return 9;
+                case 'J': return 10;
+                case 'K': return 11;
+                case 'L': return 12;
+                case 'M': return 13;
+                case 'N': return 14;
+                case 'O': return 15;
+                case 'P': return 16;
+                case 'Q': return 17;
+                case 'R': return 18;
+                case 'S': return 19;
+                case 'T': return 20;
+                case 'U': return 21;
+                case 'V': return 22;
+                case 'W': return 23;
+                case 'X': return 24;
+                case 'Y': return 25;
+                case 'Z': return 26;
+                default: return 0;
+            }
+        }
+
         function CreateSolveButton()
         {
             var code = ConvertOldLinesToNewCode();
@@ -318,48 +383,21 @@
             return ButtonHtml;
         }
 
-		function SwitchGrid()
-		{
-            document.getElementById("SwitchGridButton").innerHTML = CreateSolveButton();
-            document.getElementById("SwitchGridButton").id = "SolveButton";
-			document.getElementById("SymmetricalGridButton").remove();
-			Phase = 2;
-			document.getElementById("MainTable").className = "Phase2";
-			var TableString = "";
-
-			for (i = 0; i < GridHeight; i++)
-			{
-				TableString = TableString + "<tr>\n"
-				for (j = 0; j < GridWidth; j++)
-				{
-					if (Grid[i][j] == 0)
-					{
-						TableString = TableString + "<td class = 'black'></td>\n";
-					}else
-					{
-						TableString = TableString + "<td class = 'white'><input type = 'text' style='color:#f00000' id = '" + i + "x" + j + "' value = '??' oninput=\"UpdateCell(id)\"></td>\n";
-						Grid[i][j] = -1;
-					}
-				}
-				TableString = TableString + "</tr>\n"
-			}
-			document.getElementById("MainTable").innerHTML = TableString;
-		}
-
 		function UpdateCell(id)
 		{
 			var rowcol = id.split("x");
 			var row = rowcol[0];
-			var column = rowcol[1];
-            var Number = parseInt(document.getElementById(id).value);
-            document.getElementById(id).style.color = "#f00000";
+            var column = rowcol[1];
+            var inputElement = document.getElementById(id).firstChild;
+            var Number = parseInt(inputElement.value);
+            inputElement.style.color = "#f00000";
 			if (Number != "NaN")
 			{
 				Grid[row][column] = Number;
                 UpdateCurrentGrid();
                 if (Number > 0 && Number <= 26)
                 {
-                    document.getElementById(id).style.color = "#000000";
+                    inputElement.style.color = "#000000";
                 }
             }
         }
@@ -370,24 +408,19 @@
 
             if (letter.length > 1)
             {
-                if (letter.substring(0, 1) == "?")
-                    document.getElementById(id).value = letter.substring(1, 2);
-                else
-                    document.getElementById(id).value = letter.substring(0, 1);
+                document.getElementById(id).value = letter.substring(0, 1);
                 letter = letter.trim();
             }
-            if (letter.length == 0 || letter == " ")
-            {
-                document.getElementById(id).value = "?";
-            }
+            if (letter.length == 0) letter = " ";
 
             var letterChar = letter.charAt(0);
 
-            if (letterChar != "?" && !IsLetter(letterChar)) {
+            if (letterChar != " " && !IsLetter(letterChar))
+            {
                 document.getElementById(id).style.color = "#f00000";
             } else
             {
-                document.getElementById(id).style.color = "#000000";
+                document.getElementById(id).style.color = "#008800";
             }
 
             UpdateCurrentGrid();
@@ -398,23 +431,25 @@
             return ((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z'));
         }
 
-
+        function IsLetterLowercase(character)
+        {
+            return (character >= 'a' && character <= 'z');
+        }
     </script>
 </head>
-
 <body>
     <div>
-        <h1>Puzzle Title: <input name='PuzzleNote' id="PuzzleNoteInput" value="Puzzle 1" type="text" oninput="UpdateCurrentGrid()"></h1>
+        <h1>Puzzle Title: <input name='PuzzleNote' id="PuzzleNoteInput" value="@Model.Title" type="text" oninput="UpdateCurrentGrid()"></h1>
         <div id='SymmetricalGridButton' style='text-align: center;'>Symmetrical grid: <input id='SymmetricalGrid' type='checkbox' checked></div><br>
-        <table id='MainTable' class='Phase1'>
+        <table id='MainTable'>
             @for (int i = 0; i < Model.GridHeight; i++)
             {
                 <tr>
-                @for (int j = 0; j < Model.GridWidth; j++)
-                {
-                    var id = i + "x" + j;
-                    <td id='@id' class='white' onClick='ToggleSquare(id)'></td>
-                }
+                    @for (int j = 0; j < Model.GridWidth; j++)
+                    {
+                        var id = i + "x" + j;
+                        <td id='@id' class='black' onClick='ToggleSquare(id)'><input hidden type='text' style='color:#f00000' value='??' oninput="UpdateCell('@id')"></td>
+                    }
                 </tr>
             }
         </table>
@@ -423,7 +458,7 @@
         <table class='letters'>
             <tr>
                 @for (int i = 1; i <= 13; i++)
-                { 
+                {
                     <td>@i:</td>
                 }
             </tr>
@@ -431,7 +466,8 @@
                 @for (int i = 1; i <= 13; i++)
                 {
                     var id = "KnownLetter" + i;
-                    <td><input type='text' id='@id' value='?' oninput="UpdateKnownLetters(id)"></td>
+                    var value = Model.Letters.ContainsKey(i) ? Model.Letters[i] : "";
+                    <td><input type='text' id='@id' value='@value' style='color:#008800' oninput="UpdateKnownLetters(id)"></td>
                 }
             </tr>
             <tr>
@@ -444,36 +480,43 @@
                 @for (int i = 14; i <= 26; i++)
                 {
                     var id = "KnownLetter" + i;
-                    <td><input type='text' id='@id' value='?' oninput="UpdateKnownLetters(id)"></td>
+                    var value = Model.Letters.ContainsKey(i) ? Model.Letters[i] : "";
+                    <td><input type='text' id='@id' value='@value' style='color:#008800' oninput="UpdateKnownLetters(id)"></td>
                 }
             </tr>
         </table>
     </div>
-    <div id='SwitchGridButton'><button onclick="SwitchGrid()" style='position: absolute; bottom:550px; left:1250px;'>Finished selecting squares!</button></div>
-    <div id='DisplayGrid' style="position: absolute; bottom:350px; left:1500px; text-align: left;">
-        19x15<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        ??????????????????????????????<br>
-        letters<br>
-        Puzzle 1<br>
-    </div>
+    @if (Model.Code == "")
+    {
+        <div id='SolveButton'><button style='position: absolute; bottom:550px; left:1250px;' disabled>Solve this puzzle!</button></div>
+    }
+    else
+    { 
+        var href = "/PuzzleResults?name=" + Model.Title + "&height=" + Model.GridHeight + "&width=" + Model.GridWidth + "&letters=" + Model.LettersCode + "&code=" + Model.Code;
+        <div id='SolveButton'> <button style='position: absolute; bottom:550px; left:1250px;' onclick="window.location.href ='@href'">Solve this puzzle!</button></div>
+    }
+
+    <div id='DisplayGrid' style="position: absolute; bottom:350px; left:1500px; text-align: left;">...</div>
+    <script>
+        if ("@Model.Code" != "")
+        {
+            for (var i = 0; i < GridHeight; i++)
+            {
+                for (var j = 0; j < GridWidth; j++)
+                {
+                    if (Grid[i][j] > 0)
+                    {
+                        var SquareElement = document.getElementById(i + "x" + j);
+                        SquareElement.className = 'white';
+                        SquareElement.removeAttribute("OnClick");
+                        SquareElement.setAttribute("OnDblClick", "ToggleSquare(id)");
+                        SquareElement.firstChild.removeAttribute("hidden");
+                        SquareElement.firstChild.value = Grid[i][j];
+                        SquareElement.firstChild.style.color = "#000000";
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>
-

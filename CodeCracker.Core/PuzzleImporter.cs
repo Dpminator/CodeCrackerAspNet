@@ -67,16 +67,29 @@ namespace CodeCracker.Core
                     {
                         if (currentConsecutiveBlanks > 26) 
                             throw new InvalidOperationException("There are more than 26 blank spaces in a row!");
-                        code += char.ToLower(PuzzleSolver.NumToAlphabetLetter(currentConsecutiveBlanks));
+                        code += ConsecutiveBlanksToCode(currentConsecutiveBlanks);
                         currentConsecutiveBlanks = 0;
                     }
 
                     code += PuzzleSolver.NumToAlphabetLetter(numCodeInt);
                 }
             }
-            if (currentConsecutiveBlanks > 0) code += char.ToLower(PuzzleSolver.NumToAlphabetLetter(currentConsecutiveBlanks));
+            if (currentConsecutiveBlanks > 0) code += ConsecutiveBlanksToCode(currentConsecutiveBlanks);
 
             return (height, width, code, letters, name);
+        }
+
+        private static string ConsecutiveBlanksToCode(int consec)
+        {
+            var letfoverNum = consec % 26;
+            var whole26 = (consec - letfoverNum) / 26;
+            var result = "";
+
+            for (var i = 0; i < whole26; i++)
+                result += "z";
+            result += char.ToLower(PuzzleSolver.NumToAlphabetLetter(letfoverNum));
+
+            return result;
         }
 
         public int GetGridHeight()
