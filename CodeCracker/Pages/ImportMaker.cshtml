@@ -6,12 +6,16 @@
 <html>
 <head>
     <title>Import a Puzzle</title>
-
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
     <link href='https://fonts.googleapis.com/css?family=Patrick+Hand' rel='stylesheet'>
-
     <style type='text/css'>
+        table tr td.black { background: #000000; }
+        table tr td.white { background: #ffffff; }
+        #TitleInput { color: #000000; font-size: 35px; }
+        h1 { color: #000000; font-size: 36px; text-align: center; }
+        h2 { text-align: center; font-size: 20px; }
+        div.regular {  position: relative; bottom: 4px; }
+
         body {
             background: #e3cd73;
             color: #000000;
@@ -19,22 +23,6 @@
             margin-left: 20px;
             font-size: 14px;
             font-family: Arial, sans-serif, sans;
-        }
-
-        h1 {
-            color: #000000;
-            font-size: 36px;
-            text-align: center;
-        }
-
-        #PuzzleNoteInput {
-            color: #000000;
-            font-size: 35px;
-        }
-
-        h2 {
-            text-align: center;
-            font-size: 20px;
         }
 
         table {
@@ -47,25 +35,17 @@
             font-size: 170%;
         }
 
-            table td {
-                border: 1px solid #666666;
-                padding: 0px;
-                background: #000000;
-                color: #ffffff;
-                text-align: center;
-                width: 32px;
-                height: 30px;
-                font-family: 'Patrick Hand';
-                line-height: 0%;
-            }
-
-            table tr td.black {
-                background: #000000;
-            }
-
-            table tr td.white {
-                background: #ffffff;
-            }
+        table td {
+            border: 1px solid #666666;
+            padding: 0px;
+            background: #000000;
+            color: #ffffff;
+            text-align: center;
+            width: 32px;
+            height: 32px;
+            font-family: 'Patrick Hand';
+            line-height: 0%;
+        }
 
         div.small {
             font-size: 55%;
@@ -76,16 +56,11 @@
             left: 1px;
         }
 
-        div.regular {
-            position: relative;
-            bottom: 4px;
-        }
-
         td input {
             padding: 0;
             border: 0px;
             margin: 0px;
-            width: 32px;
+            width: 30px;
             height: 30px;
             text-align: center;
             font-size: 24px;
@@ -93,13 +68,11 @@
             color: #000000
         }
     </style>
-
     <script type="text/javascript">
-        var OldCode = "";
         var Title = "@Model.Title";
         var GridHeight = @Model.GridHeight;
         var GridWidth = @Model.GridWidth;
-        var Letters = "";
+        var Letters = "@Model.Letters";
         var Grid = CreateGrid("@Model.Code");
 
         function CreateGrid(code)
@@ -150,9 +123,10 @@
             return grid;
         }
 
-        function ToggleSquare(id)
+        function ToggleSquare(id, canDoOpposite = true)
         {
-            var rowcol = id.split("x");
+            var row = id.split("x")[0];
+            var col = id.split("x")[1];
             var SquareElement = document.getElementById(id);
 			if (SquareElement.className == 'white')
 			{
@@ -168,60 +142,103 @@
                 SquareElement.setAttribute("OnDblClick", "ToggleSquare(id)");
                 SquareElement.firstChild.removeAttribute("hidden");
             }
-            Grid[rowcol[0]][rowcol[1]] = -1 * Grid[rowcol[0]][rowcol[1]];
+            Grid[row][col] = -1 * Grid[row][col];
 
-			if (document.getElementById("SymmetricalGrid").checked == true && !(rowcol[0] == (GridHeight-1)/2 && rowcol[1] == (GridWidth-1)/2) )
-			{
-				var row = (GridHeight - 1) - rowcol[0];
-                var column = (GridWidth - 1) - rowcol[1];
-                var oppositeSquareElement = document.getElementById(row + "x" + column);
-
-				if (SquareElement.className == 'black')
-				{
-                    oppositeSquareElement.className = 'black';
-                    oppositeSquareElement.removeAttribute("OnDblClick");
-                    oppositeSquareElement.setAttribute("OnClick", "ToggleSquare(id)");
-                    oppositeSquareElement.firstChild.setAttribute("hidden", "");
-				}else
-				{
-                    oppositeSquareElement.className = 'white';
-                    oppositeSquareElement.removeAttribute("OnClick");
-                    oppositeSquareElement.setAttribute("OnDblClick", "ToggleSquare(id)");
-                    oppositeSquareElement.firstChild.removeAttribute("hidden");
-                }
-                Grid[row][column] = -1 * Grid[row][column];
+			if (canDoOpposite && document.getElementById("SymmetricalGrid").checked && !(row == (GridHeight-1)/2 && col == (GridWidth-1)/2))
+            {
+                ToggleSquare(((GridHeight - 1) - row) + "x" + ((GridWidth - 1) - col), false);
 			}
-            UpdateCurrentGrid();
-		}
+            UpdateSolveButton();
+        }
 
-		function UpdateCurrentGrid()
-		{
-            var GridString = "";
-			for (i = 0; i < GridHeight; i++)
-			{
-				for (j = 0; j < GridWidth; j++)
+        function UpdateSolveButton()
+        {
+            var code = CreateCodeFromGrid();
+            if (code == "?")
+            {
+                return "<button style='position: absolute; bottom:550px; left:1250px;' disabled>Solve this puzzle!</button>";
+            }
+
+            Title = document.getElementById("TitleInput").value;
+            var href = "/PuzzleResults?name=" + Title + "&height=" + GridHeight + "&width=" + GridWidth + "&letters=" + Letters + "&code=" + code;
+            var ButtonHtml = "<button style='position: absolute; bottom:550px; left:1250px;' onclick =\"window.location.href='" + href + "'\">Solve this puzzle!</button>";
+            document.getElementById("SolveButton").innerHTML = ButtonHtml;
+        }
+
+        function CreateCodeFromGrid()
+        {
+            var code = "";
+            var currentConsecutiveBlanks = 0;
+
+            for (var i = 0; i < GridHeight; i++)
+            {
+                for (var j = 0; j < GridWidth; j++)
                 {
-                    if (Grid[i][j] <= 0)
+                    var numCodeInt = Grid[i][j];
+                    if (numCodeInt <= 0)
                     {
-                        var gsSection = "00";
                         if (document.getElementById(i + "x" + j).className == "white")
                         {
-                            gsSection = "??";
+                            return "?";
+                        } else
+                        {
+                            currentConsecutiveBlanks++;
+                            continue;
                         }
-                        GridString = GridString + gsSection;
-                    } else
-                    if (Grid[i][j] > 9)
-					{
-						GridString = GridString + Grid[i][j];
-					}else
-					{
-						GridString = GridString + "0" + Grid[i][j];
-					}
+                    }
+                    if (currentConsecutiveBlanks > 0)
+                    {
+                        code += NumToAlphabetLetter(currentConsecutiveBlanks, false);
+                        currentConsecutiveBlanks = 0;
+                    }
+                    code += NumToAlphabetLetter(numCodeInt);
                 }
-				GridString = GridString + "<br>";
-			}
-            OldCode = GridString;
-            GridString = GridHeight + "x" + GridWidth + "<br>" + GridString;
+            }
+            if (currentConsecutiveBlanks > 0) code += NumToAlphabetLetter(currentConsecutiveBlanks, false);
+
+            return code;
+        }
+
+		function UpdateCell(id)
+		{
+			var rowcol = id.split("x");
+			var row = rowcol[0];
+            var column = rowcol[1];
+            var inputElement = document.getElementById(id).firstChild;
+            var Number = parseInt(inputElement.value);
+            inputElement.style.color = "#f00000";
+			if (Number != "NaN")
+			{
+				Grid[row][column] = Number;
+                UpdateSolveButton();
+                if (Number > 0 && Number <= 26)
+                {
+                    inputElement.style.color = "#000000";
+                }
+            }
+        }
+
+        function UpdateKnownLetters(id)
+        {
+            var letter = document.getElementById(id).value;
+
+            if (letter.length > 1)
+            {
+                document.getElementById(id).value = letter.substring(0, 1);
+                letter = letter.trim();
+            }
+            if (letter.length == 0) letter = " ";
+
+            var letterChar = letter.charAt(0);
+
+            if (letterChar != " " && !IsLetter(letterChar))
+            {
+                document.getElementById(id).style.color = "#f00000";
+            } else
+            {
+                document.getElementById(id).style.color = "#008800";
+            }
+
             Letters = "";
 			for (i = 1; i <= 26; i++)
             {
@@ -230,56 +247,15 @@
 				{
 					if (i < 10)
 					{
-						Letters = Letters + "0" + i + klValue.toLowerCase() + " ";
+						Letters = Letters + "0" + i + klValue.toLowerCase() + ",";
 					}else
 					{
-						Letters = Letters + i + klValue.toLowerCase() + " ";
+						Letters = Letters + i + klValue.toLowerCase() + ",";
 					}
 				}
-			}
-
-            GridString = GridString + Letters + "<br>";
-            Letters = Letters.trim().replace(/ /g, ",");
-			GridString = GridString + document.getElementById("PuzzleNoteInput").value;
-            document.getElementById("DisplayGrid").innerHTML = GridString;
-            document.getElementById("SolveButton").innerHTML = CreateSolveButton();
-		}
-
-        function ConvertOldLinesToNewCode()
-        {
-            var newCode = "";
-            var currentConsecutiveBlanks = 0;
-            var oldLines = OldCode.split("<br>");
-
-            for (var lineNum = 0; lineNum < GridHeight; lineNum++)
-            {
-                var line = oldLines[lineNum];
-                for (var i = 0; i < GridWidth; i++)
-                {
-                    var numCodeStr = line.substring(i * 2, (i * 2) + 2);
-                    var numCodeInt = parseInt(numCodeStr);
-                    if (isNaN(numCodeInt))
-                    {
-                        newCode += "?";
-                        return newCode;
-                    }
-                    if (numCodeInt == 0)
-                    {
-                        currentConsecutiveBlanks++;
-                        continue;
-                    }
-                    if (currentConsecutiveBlanks > 0)
-                    {
-                        newCode += NumToAlphabetLetter(currentConsecutiveBlanks, false);
-                        currentConsecutiveBlanks = 0;
-                    }
-                    newCode += NumToAlphabetLetter(numCodeInt);
-                }
             }
-            if (currentConsecutiveBlanks > 0) newCode += NumToAlphabetLetter(currentConsecutiveBlanks, false);
 
-
-            return newCode;
+            UpdateSolveButton();
         }
 
         function NumToAlphabetLetter(number, capital = true)
@@ -370,62 +346,6 @@
             }
         }
 
-        function CreateSolveButton()
-        {
-            var code = ConvertOldLinesToNewCode();
-            if (code.indexOf("?") >= 0)
-            {
-                return "<button style='position: absolute; bottom:550px; left:1250px;' disabled>Solve this puzzle!</button>";
-            }
-
-            var href = "/PuzzleResults?name=" + Title + "&height=" + GridHeight + "&width=" + GridWidth + "&letters=" + Letters + "&code=" + code;
-            var ButtonHtml = "<button style='position: absolute; bottom:550px; left:1250px;' onclick =\"window.location.href='" + href + "'\">Solve this puzzle!</button>";
-            return ButtonHtml;
-        }
-
-		function UpdateCell(id)
-		{
-			var rowcol = id.split("x");
-			var row = rowcol[0];
-            var column = rowcol[1];
-            var inputElement = document.getElementById(id).firstChild;
-            var Number = parseInt(inputElement.value);
-            inputElement.style.color = "#f00000";
-			if (Number != "NaN")
-			{
-				Grid[row][column] = Number;
-                UpdateCurrentGrid();
-                if (Number > 0 && Number <= 26)
-                {
-                    inputElement.style.color = "#000000";
-                }
-            }
-        }
-
-        function UpdateKnownLetters(id)
-        {
-            var letter = document.getElementById(id).value;
-
-            if (letter.length > 1)
-            {
-                document.getElementById(id).value = letter.substring(0, 1);
-                letter = letter.trim();
-            }
-            if (letter.length == 0) letter = " ";
-
-            var letterChar = letter.charAt(0);
-
-            if (letterChar != " " && !IsLetter(letterChar))
-            {
-                document.getElementById(id).style.color = "#f00000";
-            } else
-            {
-                document.getElementById(id).style.color = "#008800";
-            }
-
-            UpdateCurrentGrid();
-        }
-
         function IsLetter(character)
         {
             return ((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z'));
@@ -439,9 +359,9 @@
 </head>
 <body>
     <div>
-        <h1>Puzzle Title: <input name='PuzzleNote' id="PuzzleNoteInput" value="@Model.Title" type="text" oninput="UpdateCurrentGrid()"></h1>
+        <h1>Puzzle Title: <input name='PuzzleNote' id="TitleInput" value="@Model.Title" type="text" oninput="UpdateSolveButton()"></h1>
         <div id='SymmetricalGridButton' style='text-align: center;'>Symmetrical grid: <input id='SymmetricalGrid' type='checkbox' checked></div><br>
-        <table id='MainTable'>
+        <table id='GridTable'>
             @for (int i = 0; i < Model.GridHeight; i++)
             {
                 <tr>
@@ -466,8 +386,7 @@
                 @for (int i = 1; i <= 13; i++)
                 {
                     var id = "KnownLetter" + i;
-                    var value = Model.Letters.ContainsKey(i) ? Model.Letters[i] : "";
-                    <td><input type='text' id='@id' value='@value' style='color:#008800' oninput="UpdateKnownLetters(id)"></td>
+                    <td><input type='text' id='@id' value='' style='color:#008800' oninput="UpdateKnownLetters(id)"></td>
                 }
             </tr>
             <tr>
@@ -480,43 +399,32 @@
                 @for (int i = 14; i <= 26; i++)
                 {
                     var id = "KnownLetter" + i;
-                    var value = Model.Letters.ContainsKey(i) ? Model.Letters[i] : "";
-                    <td><input type='text' id='@id' value='@value' style='color:#008800' oninput="UpdateKnownLetters(id)"></td>
+                    <td><input type='text' id='@id' value='' style='color:#008800' oninput="UpdateKnownLetters(id)"></td>
                 }
             </tr>
         </table>
     </div>
-    @if (Model.Code == "")
-    {
-        <div id='SolveButton'><button style='position: absolute; bottom:550px; left:1250px;' disabled>Solve this puzzle!</button></div>
-    }
-    else
-    { 
-        var href = "/PuzzleResults?name=" + Model.Title + "&height=" + Model.GridHeight + "&width=" + Model.GridWidth + "&letters=" + Model.LettersCode + "&code=" + Model.Code;
-        <div id='SolveButton'> <button style='position: absolute; bottom:550px; left:1250px;' onclick="window.location.href ='@href'">Solve this puzzle!</button></div>
-    }
-
+    <div id='SolveButton'><button style='position: absolute; bottom:550px; left:1250px;' disabled>Solve this puzzle!</button></div>
     <div id='DisplayGrid' style="position: absolute; bottom:350px; left:1500px; text-align: left;">...</div>
     <script>
-        if ("@Model.Code" != "")
+        for (var i = 0; i < GridHeight; i++) for (var j = 0; j < GridWidth; j++) if (Grid[i][j] > 0)
         {
-            for (var i = 0; i < GridHeight; i++)
-            {
-                for (var j = 0; j < GridWidth; j++)
-                {
-                    if (Grid[i][j] > 0)
-                    {
-                        var SquareElement = document.getElementById(i + "x" + j);
-                        SquareElement.className = 'white';
-                        SquareElement.removeAttribute("OnClick");
-                        SquareElement.setAttribute("OnDblClick", "ToggleSquare(id)");
-                        SquareElement.firstChild.removeAttribute("hidden");
-                        SquareElement.firstChild.value = Grid[i][j];
-                        SquareElement.firstChild.style.color = "#000000";
-                    }
-                }
-            }
+            var SquareElement = document.getElementById(i + "x" + j);
+            SquareElement.className = 'white';
+            SquareElement.removeAttribute("OnClick");
+            SquareElement.setAttribute("OnDblClick", "ToggleSquare(id)");
+            SquareElement.firstChild.removeAttribute("hidden");
+            SquareElement.firstChild.value = Grid[i][j];
+            SquareElement.firstChild.style.color = "#000000";
         }
+        var letterPairs = "@Model.Letters".length == 0 ? "" :"@Model.Letters".split(",");
+        for (var i = 0; i < letterPairs.length; i++)
+        {
+            var num = parseInt(letterPairs[i].substring(0, 2));
+            var letter = letterPairs[i].substring(2, 3);
+            document.getElementById("KnownLetter" + num).value = letter.toLocaleUpperCase();
+        }
+        UpdateSolveButton();
     </script>
 </body>
 </html>

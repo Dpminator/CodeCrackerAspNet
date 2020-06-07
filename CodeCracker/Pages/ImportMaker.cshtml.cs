@@ -9,8 +9,7 @@ namespace CodeCracker.Pages
         public int GridHeight = 19;
         public int GridWidth = 15;
         public string Title = "Puzzle 1";
-        public Dictionary<int, string> Letters = new Dictionary<int, string>();
-        public string LettersCode = "";
+        public string Letters = "";
         public string Code = "";
 
         public void OnGet()
@@ -22,17 +21,7 @@ namespace CodeCracker.Pages
             if (query.ContainsKey("name")) Title = query["name"].First();
             if (query.ContainsKey("title")) Title = query["title"].First();
             if (query.ContainsKey("code")) Code = query["code"].First();
-            if (query.ContainsKey("letters"))
-            {
-                LettersCode = query["letters"].First();
-                var letterPairs = LettersCode.Split(",");
-                foreach (var letterPair in letterPairs)
-                {
-                    var num = int.Parse(letterPair.Substring(0, 2));
-                    var letter = letterPair.Substring(2, 1).ToUpper();
-                    Letters.Add(num, letter);
-                }
-            }
+            if (query.ContainsKey("letters")) Letters = query["letters"].First();
         }
     }
 }
